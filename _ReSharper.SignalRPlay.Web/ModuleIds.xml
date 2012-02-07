@@ -1,0 +1,4 @@
+<Modules>
+  <Module PersistentId="B4E2F4BE-1CB2-4125-80B8-DC5B685FF740" ModuleId="SignalRPlay.Web" />
+  <Module PersistentId="SignalR, Version=0.3.5.0, Culture=neutral, PublicKeyToken=null" ModuleId="SignalR" />
+</Modules>

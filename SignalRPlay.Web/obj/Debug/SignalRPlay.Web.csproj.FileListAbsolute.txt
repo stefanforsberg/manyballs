@@ -1,0 +1,7 @@
+C:\Development\SignalRPlay\SignalRPlay.Web\SignalRPlay.Web\bin\SignalRPlay.Web.dll
+C:\Development\SignalRPlay\SignalRPlay.Web\SignalRPlay.Web\bin\SignalRPlay.Web.pdb
+C:\Development\SignalRPlay\SignalRPlay.Web\SignalRPlay.Web\bin\Microsoft.Web.Infrastructure.dll
+C:\Development\SignalRPlay\SignalRPlay.Web\SignalRPlay.Web\bin\SignalR.dll
+C:\Development\SignalRPlay\SignalRPlay.Web\SignalRPlay.Web\obj\Debug\ResolveAssemblyReference.cache
+C:\Development\SignalRPlay\SignalRPlay.Web\SignalRPlay.Web\obj\Debug\SignalRPlay.Web.dll
+C:\Development\SignalRPlay\SignalRPlay.Web\SignalRPlay.Web\obj\Debug\SignalRPlay.Web.pdb

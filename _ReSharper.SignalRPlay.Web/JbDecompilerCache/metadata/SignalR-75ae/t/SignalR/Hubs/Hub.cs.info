@@ -1,0 +1,14 @@
+﻿Code version: 6.1.37.86
+Assembly name SignalR, Version=0.3.5.0, Culture=neutral, PublicKeyToken=null mvid {591f5dfb-0576-49eb-b566-108a14a683af}
+* ref mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+  mvid {fcb9dac8-ae3a-4886-93b0-f4cd5b0db0be}
+* ref System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+  mvid {c08d55d3-6463-439d-b112-60f6502ec141}
+* ref System.Web, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a
+  mvid {e332d723-1405-4f29-af8b-ce2050c10687}
+* ref System.Web.Extensions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35
+  mvid {787e8c46-6af7-4935-8e54-a79446e4cf41}
+* ref System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089
+  mvid {0467f5c0-e463-4b2c-acc5-f718cb71f056}
+* ref Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35
+  mvid {1862810a-8fc3-48e3-a3e7-8e7873816cbf}

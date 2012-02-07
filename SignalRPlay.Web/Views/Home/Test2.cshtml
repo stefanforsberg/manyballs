@@ -1,0 +1,167 @@
+﻿@model object
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html >
+<head runat="server">
+    <script src="../../Scripts/jquery-1.7.1.min.js" type="text/javascript"></script>
+    <script src="../../Scripts/jquery.cookie.js" type="text/javascript"></script>
+    <script src="../../Scripts/jquery.signalR.min.js" type="text/javascript"></script>
+    <script src="/signalr/hubs" type="text/javascript"></script>
+    
+    <style type="text/css">
+        #board td {
+            width: 50px;
+            height: 50px;
+            border: solid 1px #d2d2d2;
+        }
+        
+        #board td {
+            width: 50px;
+            height: 50px;
+            border: solid 1px #d2d2d2;
+        }
+        
+        #board td.ok {
+            background-color: #00ff00;
+        }
+        
+        #board td.ok:hover {
+            background-color: #007700;
+            cursor: pointer;
+        }
+        
+        #board td.inactive {
+            background-color: #ff0000;
+        }
+        
+        #game-area, #chat-area {
+            display: none;
+        }
+        
+        #users a {
+            color: #00ff00;
+        }
+        
+        #users li.wants-to-play {
+            color: #00ff00;
+        }
+        
+    </style>
+
+    <script type="text/javascript">
+        $(function () {
+            // SignalR hub initialization
+            var x = 5;
+            var game = $.connection.game2;
+            //            game.moveBall = function (x) {
+
+            //            };
+
+            $.connection.hub.start(function () {
+
+            });
+
+
+            game.updateUsers = function (users) {
+                console.log(game);
+
+                $("#users").empty();
+
+                for (var i = 0; i < users.length; i++) {
+                    var h = "";
+                    if (users[i].Value.Name == game.UserName) {
+                        h = '<li>' + users[i].Value.Name + '</li>';
+                    }
+                    else {
+                        h = '<li class="challenge"><a class="challenge" href="#" data-challange-user="' + users[i].Value.Name + '">' + users[i].Value.Name + '</a></li>';
+                    }
+                    $("#users").append(h);
+                }
+            };
+
+            game.activateChat = function () {
+                $("#chat-area").show();
+            };
+
+            game.addMessage = function (message) {
+                $("#chat").append("<li>" + message.User + ": " + message.Message + "</li>");
+            };
+
+            game.tileClicked = function (tile) {
+                $("#board td[data-id='" + tile.Tile + "']").removeClass("ok").addClass("inactive");
+            };
+
+            $("#challenge").on("click", function () {
+                alert("klick");
+            });
+
+            $("#enter").on("click", function () {
+                game.join($("#username").val());
+            });
+
+
+
+            $("#chat-send").click(function () {
+                game.postMessage($("#chat-message").val());
+            });
+
+            $("#board td.ok").click(function () {
+                game.clickTile($(this).attr("data-id"));
+            });
+
+        });
+    </script>
+
+</head>
+    <body>
+        
+        <input type="text" id="username" /> <input type="button" id="enter" />
+        
+        <ul id="users">
+            
+        </ul>
+        
+        
+        <br/><br/><br/><br/><br/><br/><br/>
+        
+        
+        <div id="chat-area">
+            <input type="text" id="chat-message" />
+            <input type="button" id="chat-send" />
+
+            <ul id="chat">
+            
+            </ul>
+        </div>
+        
+        <div id="game-area">
+            <div id="board">
+                <table>
+                    <tr>
+                        <td class="ok" data-id="1"></td>
+                        <td class="ok" data-id="2"></td>
+                        <td class="ok" data-id="3"></td>
+                    </tr>
+                
+                    <tr>
+                        <td class="ok" data-id="4"></td>
+                        <td class="ok" data-id="5"></td>
+                        <td class="ok" data-id="6"></td>
+                    </tr>
+                
+                    <tr>
+                        <td class="ok" data-id="7"></td>
+                        <td class="ok" data-id="8"></td>
+                        <td class="ok" data-id="9"></td>
+                    </tr>
+                </table>
+
+            </div>
+        </div>
+    </body>
+</html>
