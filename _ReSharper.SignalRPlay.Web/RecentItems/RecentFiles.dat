@@ -4,14 +4,11 @@
     <File id="B4E2F4BE-1CB2-4125-80B8-DC5B685FF740/f:Global.asax.cs" caret="380" fromTop="5" />
     <File id="B4E2F4BE-1CB2-4125-80B8-DC5B685FF740/d:Controllers/f:HomeController.cs" caret="406" fromTop="20" />
     <File id="B4E2F4BE-1CB2-4125-80B8-DC5B685FF740/d:Models/f:Game.cs" caret="1030" fromTop="27" />
+    <File id="B4E2F4BE-1CB2-4125-80B8-DC5B685FF740/d:Views/d:Home/f:Test2.cshtml" caret="588" fromTop="21" />
     <File id="B4E2F4BE-1CB2-4125-80B8-DC5B685FF740/d:Models/f:Game2.cs" caret="716" fromTop="22" />
-    <File id="B4E2F4BE-1CB2-4125-80B8-DC5B685FF740/d:Views/d:Home/f:Index.cshtml" caret="228" fromTop="11" />
-    <File id="B4E2F4BE-1CB2-4125-80B8-DC5B685FF740/d:Views/d:Home/f:Test2.cshtml" caret="2836" fromTop="22" />
+    <File id="B4E2F4BE-1CB2-4125-80B8-DC5B685FF740/d:Views/d:Home/f:Index.cshtml" caret="1759" fromTop="18" />
   </RecentFiles>
   <RecentEdits>
-    <File id="B4E2F4BE-1CB2-4125-80B8-DC5B685FF740/d:Views/d:Home/f:Test2.cshtml" caret="3280" fromTop="26" />
-    <File id="B4E2F4BE-1CB2-4125-80B8-DC5B685FF740/d:Views/d:Home/f:Test2.cshtml" caret="2439" fromTop="11" />
-    <File id="B4E2F4BE-1CB2-4125-80B8-DC5B685FF740/d:Views/d:Home/f:Test2.cshtml" caret="4577" fromTop="37" />
     <File id="B4E2F4BE-1CB2-4125-80B8-DC5B685FF740/d:Views/d:Home/f:Test2.cshtml" caret="463" fromTop="16" />
     <File id="B4E2F4BE-1CB2-4125-80B8-DC5B685FF740/d:Views/d:Home/f:Test2.cshtml" caret="598" fromTop="22" />
     <File id="B4E2F4BE-1CB2-4125-80B8-DC5B685FF740/d:Views/d:Home/f:Test2.cshtml" caret="4577" fromTop="25" />
@@ -39,5 +36,8 @@
     <File id="B4E2F4BE-1CB2-4125-80B8-DC5B685FF740/d:Views/d:Home/f:Test2.cshtml" caret="2144" fromTop="14" />
     <File id="B4E2F4BE-1CB2-4125-80B8-DC5B685FF740/d:Views/d:Home/f:Test2.cshtml" caret="2955" fromTop="26" />
     <File id="B4E2F4BE-1CB2-4125-80B8-DC5B685FF740/d:Views/d:Home/f:Test2.cshtml" caret="2773" fromTop="14" />
+    <File id="B4E2F4BE-1CB2-4125-80B8-DC5B685FF740/d:Views/d:Home/f:Index.cshtml" caret="531" fromTop="9" />
+    <File id="B4E2F4BE-1CB2-4125-80B8-DC5B685FF740/d:Views/d:Home/f:Index.cshtml" caret="687" fromTop="15" />
+    <File id="B4E2F4BE-1CB2-4125-80B8-DC5B685FF740/d:Views/d:Home/f:Index.cshtml" caret="1759" fromTop="18" />
   </RecentEdits>
 </RecentFiles>

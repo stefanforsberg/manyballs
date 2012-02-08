@@ -9,14 +9,24 @@ namespace SignalRPlay.Web.Models
 {
     public class Ball
     {
+        public string Name { get; set; }
+
+        public string Color { get; set; }
+        
         public int LocX { get; set; }
 
         public int LocY { get; set; }
 
-        public static Ball Random()
+        public static Ball Random(string name, string color)
         {
             var random = new Random();
-            return new Ball { LocX = random.Next(15, 450), LocY = random.Next(15, 450) };
+            return new Ball
+                       {
+                           Name = name,
+                           Color = color,
+                           LocX = random.Next(15, 450), 
+                           LocY = random.Next(15, 450)
+                       };
         }
     }
 
@@ -29,19 +39,12 @@ namespace SignalRPlay.Web.Models
             UserData = new ConcurrentDictionary<string, Ball>();
         }
 
-        //public void Join(string deckId)
-        //{
-        //    Caller.DeckId = deckId;
-
-        //    //AddToGroup(deckId);
-        //}
-
-        public void Join()
+        public void Join(string name, string color)
         {
-            UserData.AddOrUpdate(Context.ClientId, (k) => Ball.Random(), (k, v) => Ball.Random());
+            UserData.AddOrUpdate(Context.ClientId, (k) => Ball.Random(name, color), (k, v) => Ball.Random(name, color));
+            Clients.showUsers(UserData.ToArray());
             Clients.draw(UserData.ToArray());
         }
-
 
         public void MoveBall(string dir)
         {
@@ -50,16 +53,16 @@ namespace SignalRPlay.Web.Models
             switch(dir)
             {
                 case "r":
-                    ball.LocX++;
+                    if (ball.LocX < 500) ball.LocX++;
                     break;
                 case "l":
-                    ball.LocX--;
+                    if(ball.LocX > 0) ball.LocX--;
                     break;
                 case "u":
-                    ball.LocY--;
+                    if(ball.LocY > 0) ball.LocY--;
                     break;
                 case "d":
-                    ball.LocY++;
+                    if(ball.LocY < 500) ball.LocY++;
                     break;
             }
             

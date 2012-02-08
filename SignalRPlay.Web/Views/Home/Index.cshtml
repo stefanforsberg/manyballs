@@ -13,23 +13,38 @@
     <script src="../../Scripts/jquery.signalR.min.js" type="text/javascript"></script>
     <script src="/signalr/hubs" type="text/javascript"></script>
     
+    <style type="text/css">
+        #game-area {
+            width: 800px;
+            display: none;    
+        }
+        
+        #myDrawing {
+            border: solid 3px #e2e2e2;
+            float: left;
+            margin-right: 30px;
+        }
+        
+        #users {
+            float: left;
+        }
+        
+        ul {
+            list-style: none;
+            padding: 0px;
+            margin: 0px;
+        }
+    </style>
+
     <script type="text/javascript">
         $(function () {
-            // SignalR hub initialization
-            var x = 5;
             var game = $.connection.game;
-            //            game.moveBall = function (x) {
-
-            //            };
 
             $.connection.hub.start(function () {
-                game.join();
+
             });
 
-
-
             game.draw = function (data) {
-                console.log("kommer");
 
                 // Check the element is in the DOM and the browser supports canvas
                 var drawingCanvas = document.getElementById('myDrawing');
@@ -43,28 +58,32 @@
                 for (var i = 0; i < data.length; i++) {
                     var ball = data[i].Value;
 
-                    context.fillStyle = "#00ff00";
+                    context.fillStyle = "#" + ball.Color;
 
                     context.beginPath();
                     context.arc(ball.LocX, ball.LocY, 40, 0, Math.PI * 2, true);
                     context.closePath();
 
                     context.fill();
-
-                    //			        if(ball.X > 1000 || ball.X < 0){
-                    //				        ball.DX = ball.DX*-1;
-                    //			        }
-
-                    //			        if(ball.Y < 0 || ball.Y > 800) {
-                    //				        ball.DY = ball.DY*-1
-                    //			        }
                 }
 
             };
 
-            $("html").keydown(function (event) {
-                //                alert('Handler for .keyup() called. ' + event.which);
+            game.showUsers = function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    var ball = data[i].Value;
 
+                    $("#users ul").append('<li><span style="padding-right: 15px; margin-right: 5px; width: 15px; background-color: #' + ball.Color + '"></span> ' + ball.Name + '</li>');
+                }
+            };
+
+            $("#join").click(function () {
+                
+                game.join($("#name").val(), $("#color").val());
+                $("#game-area").show();
+            });
+
+            $("html").keydown(function (event) {
                 if (event.which == "37") {
                     game.moveBall('l');
                 }
@@ -80,7 +99,6 @@
                 if (event.which == "40") {
                     game.moveBall('d');
                 }
-
             });
 
         });
@@ -88,7 +106,21 @@
 
 </head>
     <body>
-        <input type="button" id="ojoj" />
+        Namn:
+        <input type="text" id="name" />
+        &nbsp;&nbsp;&nbsp;
+        Färg
+        # <input type="text" id="color" />
+        <input type="button" id="join" value="Bolla! "/>
+
+        <div id="game-area">
         <canvas id="myDrawing" width="500" height="500" ></canvas>
+        
+        <div id="users">
+            <ul>
+                
+            </ul>
+        </div>
+        </div>
     </body>
 </html>
