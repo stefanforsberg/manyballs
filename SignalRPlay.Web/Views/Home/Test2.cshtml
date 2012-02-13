@@ -14,33 +14,65 @@
     <script src="/signalr/hubs" type="text/javascript"></script>
     
     <style type="text/css">
-        #board td {
+        
+        #hider {
+            width: 800px;
+            height: 800px;
+            background-color: #e2e2e2;
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            z-index: 100;
+            display: none;
+        }
+        
+        #hider div {
+            margin: auto;
+            width: 200px;
+            text-align: center;
+            margin-top: 45px;
+        }
+
+        #wrapper {
+            width: 750px;
+        }
+        
+        #game-area td {
             width: 50px;
             height: 50px;
             border: solid 1px #d2d2d2;
         }
         
-        #board td {
-            width: 50px;
-            height: 50px;
-            border: solid 1px #d2d2d2;
-        }
-        
-        #board td.ok {
+        #board-yours td.ok {
             background-color: #00ff00;
         }
         
-        #board td.ok:hover {
-            background-color: #007700;
+        #board-yours table.prepare td.ok:hover {
+            background-color: #00aa00;
             cursor: pointer;
         }
         
-        #board td.inactive {
-            background-color: #ff0000;
+        #board-yours td.selected {
+            background-color: #000000;
         }
         
-        #game-area, #chat-area {
+        #board-theirs td.clicked {
+            background-color: #ff0000;
+        }
+                
+        #game-area {
             display: none;
+        }
+        
+        #log-area {
+            width: 500px;
+            height: 300px;
+            border: solid 1px #00ff00;
+            overflow: scroll;
+        }
+        
+        #user-wrapper {
+            float: right;
         }
         
         #users a {
@@ -50,7 +82,6 @@
         #users li.wants-to-play {
             color: #00ff00;
         }
-        
     </style>
 
     <script type="text/javascript">
@@ -63,7 +94,7 @@
             //            };
 
             $.connection.hub.start(function () {
-
+                game.join();
             });
 
 
@@ -78,41 +109,66 @@
                         h = '<li>' + users[i].Value.Name + '</li>';
                     }
                     else {
-                        h = '<li class="challenge"><a class="challenge" href="#" data-challange-user="' + users[i].Value.Name + '">' + users[i].Value.Name + '</a></li>';
+                        h = '<li><a class="challenge" href="#" data-challange-user="' + users[i].Value.Name + '">' + users[i].Value.Name + '</a></li>';
                     }
                     $("#users").append(h);
                 }
             };
-
-            game.activateChat = function () {
-                $("#chat-area").show();
+            
+            game.challengeRecieved = function (data) {
+                console.log(data);
+                if (confirm("Du har blivit utmanad av " + data.Name + ". Acceptera?")) {
+                    game.startGame(data.Name);
+                }
             };
 
             game.addMessage = function (message) {
-                $("#chat").append("<li>" + message.User + ": " + message.Message + "</li>");
+                $("#log").append("<li>" + message.Message + "</li>");
             };
 
             game.tileClicked = function (tile) {
-                $("#board td[data-id='" + tile.Tile + "']").removeClass("ok").addClass("inactive");
+                $("#board-theirs td[data-id='" + tile.Tile + "']").addClass("clicked");
             };
 
-            $("#challenge").on("click", function () {
-                alert("klick");
+            game.gameStarted = function (data) {
+                $("#game-area").show();
+                $("#board-theirs").attr('data-name', data);
+                hideOverlay();
+            };
+
+            game.tileCompleted = function (tile) {
+                $("#board td[data-id='" + tile.Tile + "']").removeClass("building").addClass("done");
+            };
+
+            $("a.challenge").live("click", function () {
+                showOverlay("Waiting for response from person you challenged");
+                game.challenge($(this).attr('data-challange-user'));
             });
-
-            $("#enter").on("click", function () {
-                game.join($("#username").val());
-            });
-
-
 
             $("#chat-send").click(function () {
                 game.postMessage($("#chat-message").val());
             });
 
-            $("#board td.ok").click(function () {
-                game.clickTile($(this).attr("data-id"));
+            $("#board-yours table.prepare td.ok").click(function () {
+                $("#board-yours td").removeClass("selected").addClass("ok");
+                $(this).addClass("selected").removeClass("ok");
+                // game.clickTile($(this).attr("data-id"));
             });
+
+            $("#ready").click(function () {
+                $("#board-yours table").removeClass("prepare");
+                game.challengerReady($("#board-theirs").attr("data-name"), $("#board-yours td.selected").attr('data-id'));
+            });
+
+            function showOverlay(message) {
+                $("#hider div").text(message);
+                $("#hider").show();
+            }
+
+            function hideOverlay() {
+                $("#hider div").text('');
+                $("#hider").hide();
+            }
 
         });
     </script>
@@ -120,47 +176,83 @@
 </head>
     <body>
         
-        <input type="text" id="username" /> <input type="button" id="enter" />
-        
-        <ul id="users">
-            
-        </ul>
-        
-        
-        <br/><br/><br/><br/><br/><br/><br/>
-        
-        
-        <div id="chat-area">
-            <input type="text" id="chat-message" />
-            <input type="button" id="chat-send" />
-
-            <ul id="chat">
-            
-            </ul>
+        <div id="hider">
+            <div>
+                
+            </div>
         </div>
         
-        <div id="game-area">
-            <div id="board">
-                <table>
-                    <tr>
-                        <td class="ok" data-id="1"></td>
-                        <td class="ok" data-id="2"></td>
-                        <td class="ok" data-id="3"></td>
-                    </tr>
-                
-                    <tr>
-                        <td class="ok" data-id="4"></td>
-                        <td class="ok" data-id="5"></td>
-                        <td class="ok" data-id="6"></td>
-                    </tr>
-                
-                    <tr>
-                        <td class="ok" data-id="7"></td>
-                        <td class="ok" data-id="8"></td>
-                        <td class="ok" data-id="9"></td>
-                    </tr>
-                </table>
+        <div id="wrapper">
+            
+            <div id="user-wrapper">
+                <ul id="users">
+            
+                </ul>
+            </div>
+        
+            <div id="log-area">
+                <ul id="log">
+            
+                </ul>
+            </div>
+        
 
+            <div id="game-area">
+                <div id="board-yours">
+                    Yours
+                
+                    <table class="prepare">
+                        <tr>
+                            <td class="ok" data-id="1"></td>
+                            <td class="ok" data-id="2"></td>
+                            <td class="ok" data-id="3"></td>
+                        </tr>
+                
+                        <tr>
+                            <td class="ok" data-id="4"></td>
+                            <td class="ok" data-id="5"></td>
+                            <td class="ok" data-id="6"></td>
+                        </tr>
+                
+                        <tr>
+                            <td class="ok" data-id="7"></td>
+                            <td class="ok" data-id="8"></td>
+                            <td class="ok" data-id="9"></td>
+                        </tr>
+                    </table>
+                </div>
+            
+                <div id="board-theirs" data-name="">
+                    Theirs
+                
+                    <table>
+                        <tr>
+                            <td class="ok" data-id="1"></td>
+                            <td class="ok" data-id="2"></td>
+                            <td class="ok" data-id="3"></td>
+                        </tr>
+                
+                        <tr>
+                            <td class="ok" data-id="4"></td>
+                            <td class="ok" data-id="5"></td>
+                            <td class="ok" data-id="6"></td>
+                        </tr>
+                
+                        <tr>
+                            <td class="ok" data-id="7"></td>
+                            <td class="ok" data-id="8"></td>
+                            <td class="ok" data-id="9"></td>
+                        </tr>
+                    </table>
+                </div>
+            
+                <input type="submit" id="ready" value="Ready"/>
+            
+                <div id="log">
+                    <ul>
+                    
+                    </ul>
+                </div>
             </div>
         </div>
     </body>

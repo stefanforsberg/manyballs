@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using SignalR;
 using SignalR.Routing;
 using SignalRPlay.Web.Models;
 
@@ -21,6 +22,8 @@ namespace SignalRPlay.Web
 
         public static void RegisterRoutes(RouteCollection routes)
         {
+            SignalR.Infrastructure.DependencyResolver.Register(typeof(IClientIdFactory), () => new UserIdClientIdFactory());
+
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
             routes.MapRoute(
