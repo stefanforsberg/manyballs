@@ -105,7 +105,8 @@
 
                 for (var i = 0; i < users.length; i++) {
                     var h = "";
-                    if (users[i].Value.Name == game.UserName) {
+
+                    if (users[i].Value.Name == game.UserName || !users[i].Value.WantsToPlay) {
                         h = '<li>' + users[i].Value.Name + '</li>';
                     }
                     else {
@@ -114,7 +115,7 @@
                     $("#users").append(h);
                 }
             };
-            
+
             game.challengeRecieved = function (data) {
                 console.log(data);
                 if (confirm("Du har blivit utmanad av " + data.Name + ". Acceptera?")) {

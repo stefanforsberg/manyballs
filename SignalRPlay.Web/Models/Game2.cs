@@ -37,7 +37,7 @@ namespace SignalRPlay.Web.Models
 
         public void Join()
         {
-            _users.TryAdd(Context.ClientId, new User { Name = Context.ClientId, WantsToPlay = false });
+            _users.TryAdd(Context.ClientId, new User { Name = Context.ClientId, WantsToPlay = true });
 
             Caller.UserName = Context.ClientId;
             Clients.updateUsers(_users.ToArray());
@@ -59,6 +59,12 @@ namespace SignalRPlay.Web.Models
         public void StartGame(string challengerId)
         {
             PostMessage(string.Format("{0} startade spel med {1}", Context.ClientId, challengerId));
+
+            _users[challengerId].WantsToPlay = false;
+            _users[Context.ClientId].WantsToPlay = false;
+
+            Clients.updateUsers(_users.ToArray());
+
             Clients[challengerId].gameStarted(Context.ClientId);
             Caller.gameStarted(challengerId);
         }

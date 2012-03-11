@@ -2,6 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
 using SignalR.Hubs;
 
@@ -10,16 +12,14 @@ namespace SignalRPlay.Web.Models
     public class Ball
     {
         public string Name { get; set; }
-
         public string Color { get; set; }
-        
         public int LocX { get; set; }
-
         public int LocY { get; set; }
 
         public static Ball Random(string name, string color)
         {
             var random = new Random();
+
             return new Ball
                        {
                            Name = name,
@@ -46,30 +46,71 @@ namespace SignalRPlay.Web.Models
             Clients.draw(UserData.ToArray());
         }
 
+        public void SomeOneSetUsUpTheBomb()
+        {
+            var ball = UserData[Context.ClientId];
+
+            var x = ball.LocX - 22;
+            var y = ball.LocY - 22;
+
+            Clients.newBomb(x, y);
+            
+            Task.Factory.StartNew(() =>
+            {
+                Thread.Sleep(3000);
+                Clients.newBombExplode(x, y);    
+            });
+        }
+
         public void MoveBall(string dir)
         {
             var ball = UserData[Context.ClientId];
-            
+
+            var newPosX = ball.LocX;
+            var newPosY = ball.LocY;
+
             switch(dir)
             {
                 case "r":
-                    if (ball.LocX < 500) ball.LocX++;
+                    if (newPosX < 500) newPosX++;
                     break;
                 case "l":
-                    if(ball.LocX > 0) ball.LocX--;
+                    if (newPosX > 0) newPosX--;
                     break;
                 case "u":
-                    if(ball.LocY > 0) ball.LocY--;
+                    if (newPosY > 0) newPosY--;
                     break;
                 case "d":
-                    if(ball.LocY < 500) ball.LocY++;
+                    if (newPosY < 500) newPosY++;
                     break;
             }
-            
+
+            if (!Collides(newPosX, newPosY))
+            {
+                ball.LocX = newPosX;
+                ball.LocY = newPosY;
+            }
             
             Clients.draw(UserData.ToArray());
         }
 
+        private bool Collides(int newX, int newY)
+        {
+            const int radii = 40 + 40;
+
+            foreach(var ball in UserData.Where(c => c.Key != Context.ClientId))
+            {
+                var dx = ball.Value.LocX - newX;
+                var dy = ball.Value.LocY - newY;
+                
+                if ( ( dx * dx )  + ( dy * dy ) < radii * radii )
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 
     public class Deck
