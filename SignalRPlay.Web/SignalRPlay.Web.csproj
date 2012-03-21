@@ -75,6 +75,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\images\circle.gif" />
+    <Content Include="Content\images\gradient.png" />
+    <Content Include="Content\images\line.gif" />
+    <Content Include="Content\images\rainbow.png" />
+    <Content Include="Content\images\trigger.png" />
+    <Content Include="Content\jquery.miniColors.css" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="Content\themes\base\jquery-ui.css" />
@@ -95,6 +101,7 @@
     <Content Include="Scripts\jquery-1.7.1.js" />
     <Content Include="Scripts\jquery-1.7.1.min.js" />
     <Content Include="Scripts\jquery.cookie.js" />
+    <Content Include="Scripts\jquery.miniColors.min.js" />
     <Content Include="Scripts\jquery.signalR.js" />
     <Content Include="Scripts\jquery.signalR.min.js" />
     <Content Include="MrBomb.png" />
