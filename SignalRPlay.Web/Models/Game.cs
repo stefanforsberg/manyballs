@@ -15,6 +15,8 @@ namespace SignalRPlay.Web.Models
         public string Color { get; set; }
         public int LocX { get; set; }
         public int LocY { get; set; }
+        public string LastDir { get; set; }
+        public int Size { get; set; }
 
         public static Ball Random(string name, string color)
         {
@@ -25,40 +27,86 @@ namespace SignalRPlay.Web.Models
                            Name = name,
                            Color = color,
                            LocX = random.Next(15, 450), 
-                           LocY = random.Next(15, 450)
+                           LocY = random.Next(15, 450),
+                           LastDir = "r",
+                           Size = 40
                        };
         }
     }
 
-    public class Game : Hub
+    public class Game : Hub, IDisconnect
     {
         static ConcurrentDictionary<string, Ball> UserData { get; set; }
+        static bool _startedHeartbeat;
 
         static Game()
         {
             UserData = new ConcurrentDictionary<string, Ball>();
         }
 
+        private void Heartbeat()
+        {
+            while(true)
+            {
+                Thread.Sleep(100);
+                Clients.draw(UserData.ToArray());                
+            }
+        }
+
         public void Join(string name, string color)
         {
+            if (!_startedHeartbeat)
+            {
+                Task.Factory.StartNew(Heartbeat);
+                _startedHeartbeat = true;
+            }
+
             UserData.AddOrUpdate(Context.ClientId, (k) => Ball.Random(name, color), (k, v) => Ball.Random(name, color));
             Clients.showUsers(UserData.ToArray());
-            Clients.draw(UserData.ToArray());
+        }
+
+        public void HandleInput(string keyCode)
+        {
+            switch(keyCode)
+            {
+                case "32":
+                    SomeOneSetUsUpTheBomb();
+                    break;
+                case "37":
+                    MoveBall("l");
+                    break;
+                case "38":
+                    MoveBall("u");
+                    break;
+                case "39":
+                    MoveBall("r");
+                    break;
+                case "40":
+                    MoveBall("d");
+                    break;
+
+            }
         }
 
         public void SomeOneSetUsUpTheBomb()
         {
             var ball = UserData[Context.ClientId];
 
-            var x = ball.LocX - 22;
-            var y = ball.LocY - 22;
+            var x = ball.LocX - ball.Size / 2;
+            var y = ball.LocY - ball.Size / 2;
 
             Clients.newBomb(x, y);
-            
+
             Task.Factory.StartNew(() =>
             {
-                Thread.Sleep(3000);
-                Clients.newBombExplode(x, y);    
+                Thread.Sleep(5000);
+                Clients.newBombExplode(x, y);
+                var ballColliding = Collides(x, y, 44, false);
+
+                if(ballColliding != null)
+                {
+                    ballColliding.Size -= 5;    
+                }
             });
         }
 
@@ -85,31 +133,39 @@ namespace SignalRPlay.Web.Models
                     break;
             }
 
-            if (!Collides(newPosX, newPosY))
+            if (Collides(newPosX, newPosY, ball.Size, true) == null)
             {
                 ball.LocX = newPosX;
                 ball.LocY = newPosY;
+                ball.LastDir = dir;
             }
             
-            Clients.draw(UserData.ToArray());
         }
 
-        private bool Collides(int newX, int newY)
+        private Ball Collides(int newX, int newY, int currentSize, bool ignoreSelf)
         {
-            const int radii = 40 + 40;
-
-            foreach(var ball in UserData.Where(c => c.Key != Context.ClientId))
+            foreach(var ball in UserData)
             {
+                if(ignoreSelf && ball.Key == Context.ClientId)
+                {
+                    continue;
+                }
+
                 var dx = ball.Value.LocX - newX;
                 var dy = ball.Value.LocY - newY;
-                
-                if ( ( dx * dx )  + ( dy * dy ) < radii * radii )
+                var sumRadius = ball.Value.Size + currentSize;
+                if ((dx * dx) + (dy * dy) < sumRadius * sumRadius)
                 {
-                    return true;
+                    return ball.Value;
                 }
             }
 
-            return false;
+            return null;
+        }
+
+        public void Disconnect()
+        {
+            
         }
     }
 
