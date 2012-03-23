@@ -29,7 +29,6 @@
         }
         
         #users {
-            
             position: absolute;
             top: 35px;
             left: 550px;
@@ -38,6 +37,15 @@
             height: 500px;
             width: 200px;
             overflow: scroll;
+        }
+        
+        #log {
+            position: absolute;
+            top: 550px;
+            left: 400px;
+            width: 350px;
+            height: 200px;
+            overflow: hidden;
         }
         
         #myDrawing {
@@ -67,7 +75,6 @@
             img.src = 'MrBomb.png';
 
             var drawingCanvas = document.getElementById('myDrawing');
-
             var context = drawingCanvas.getContext('2d');
 
             var game = $.connection.game;
@@ -100,14 +107,38 @@
                 var contextBomb = bombCanvas.getContext('2d');
 
                 contextBomb.drawImage(img, x, y);
+                window.setTimeout(function () { coolDown(x + 22, y + 22, 0); }, 55);
+            };
+
+            var coolDown = function (x, y, angle) {
+                var bombCanvas = document.getElementById('myBombs');
+                var context = bombCanvas.getContext('2d');
+
+                context.fillStyle = "rgba(255, 0, 0, " + (0.3 + (angle/360)) + ")";
+
+                context.moveTo(x, y);
+                context.beginPath();
+                context.arc(
+                    x, y, 25, angle * Math.PI / 180,
+                    (angle + 5) * Math.PI / 180, false
+                );
+                context.lineTo(x, y);
+                context.fill();
+                context.closePath();
+                angle += 4;
+                if (angle < 360) {
+                    window.setTimeout(function () { coolDown(x, y, angle); }, 55);
+                }
             };
 
             game.newBombExplode = function (x, y) {
                 var bombCanvas = document.getElementById('myBombs');
-                var contextBomb = bombCanvas.getContext('2d');
+                var context = bombCanvas.getContext('2d');
 
-                contextBomb.fillStyle = "rgb(200,0,0)";
-                contextBomb.fillRect(x, y, 45, 45);
+                context.beginPath();
+                context.clearRect(x - 4, y - 4, 53, 53);
+                context.closePath();
+
             };
 
             game.showUsers = function (data) {
@@ -118,6 +149,10 @@
 
                     $("#users ul").append('<li><span style="padding-right: 15px; margin-right: 5px; width: 15px; background-color: ' + ball.Color + '"></span> ' + ball.Name + '</li>');
                 }
+            };
+
+            game.updateLog = function(message) {
+                $("#log ul").prepend('<li>' + message + '</li>');
             };
 
             $("#join").click(function () {
@@ -142,7 +177,7 @@
         <input type="text" id="name" />
         &nbsp;&nbsp;&nbsp;
         Färg
-        <input type="text" id="color" />
+        <input type="text" id="color" value="#000000" />
         <input type="button" id="join" value="Bolla! "/>
 
         <div id="game-area">
@@ -155,6 +190,13 @@
             <ul>
                 
             </ul>
+        </div>
+        
+        <div id="log">
+            <ul>
+                <li>aksdhkjhasdkjhsakjhsad</li>
+            </ul>
+
         </div>
     </body>
 </html>

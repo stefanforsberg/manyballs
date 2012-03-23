@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 using SignalR.Hubs;
 
 namespace SignalRPlay.Web.Models
@@ -34,14 +33,55 @@ namespace SignalRPlay.Web.Models
         }
     }
 
+    public static class ColliderHelper
+    {
+        public static bool SphereCollides(int x1, int y1, int r1, int x2, int y2, int r2)
+        {
+            var dx = x1 - x2;
+            var dy = y1 - y2;
+            var sumRadius = r1 + r2;
+            return ((dx * dx) + (dy * dy) < sumRadius * sumRadius);
+        }
+    }
+
+    public class World
+    {
+        static ConcurrentDictionary<string, Ball> _userData;
+
+        public World()
+        {
+            _userData = new ConcurrentDictionary<string, Ball>();
+        }
+
+        public void AddBall(string clientId, string name, string color)
+        {
+            _userData.AddOrUpdate(clientId, (k) => Ball.Random(name, color), (k, v) => Ball.Random(name, color));
+        }
+
+        public IEnumerable<Ball> AllBalls()
+        {
+            return _userData.Select(b => b.Value);
+        }
+
+        public IEnumerable<KeyValuePair<string, Ball>> AllUserData()
+        {
+            return _userData.ToArray();
+        }
+
+        public Ball BallForUser(string clientId)
+        {
+            return _userData[clientId];
+        }
+    }
+
     public class Game : Hub, IDisconnect
     {
-        static ConcurrentDictionary<string, Ball> UserData { get; set; }
+        static readonly World World;
         static bool _startedHeartbeat;
 
         static Game()
         {
-            UserData = new ConcurrentDictionary<string, Ball>();
+            World = new World();
         }
 
         private void Heartbeat()
@@ -49,7 +89,7 @@ namespace SignalRPlay.Web.Models
             while(true)
             {
                 Thread.Sleep(100);
-                Clients.draw(UserData.ToArray());                
+                Clients.draw(World.AllUserData());                
             }
         }
 
@@ -61,8 +101,8 @@ namespace SignalRPlay.Web.Models
                 _startedHeartbeat = true;
             }
 
-            UserData.AddOrUpdate(Context.ClientId, (k) => Ball.Random(name, color), (k, v) => Ball.Random(name, color));
-            Clients.showUsers(UserData.ToArray());
+            World.AddBall(Context.ClientId, name, color);
+            Clients.showUsers(World.AllUserData());
         }
 
         public void HandleInput(string keyCode)
@@ -90,29 +130,40 @@ namespace SignalRPlay.Web.Models
 
         public void SomeOneSetUsUpTheBomb()
         {
-            var ball = UserData[Context.ClientId];
+            var ball = World.BallForUser(Context.ClientId);
 
             var x = ball.LocX - ball.Size / 2;
             var y = ball.LocY - ball.Size / 2;
 
+            SendLogMessage(ball.Name + " set us up the bomb!");
             Clients.newBomb(x, y);
 
             Task.Factory.StartNew(() =>
             {
                 Thread.Sleep(5000);
                 Clients.newBombExplode(x, y);
-                var ballColliding = Collides(x, y, 44, false);
 
-                if(ballColliding != null)
-                {
-                    ballColliding.Size -= 5;    
-                }
+                BombExplodesOverBalls(x, y)
+                    .ToList()
+                    .ForEach(b =>
+                        {
+                            if(b.Size < 10)
+                            {
+                                SendLogMessage(b.Name + " was hit by bomb but is already so small :(");    
+                            }
+                            else
+                            {
+                                b.Size -= 5;
+                                SendLogMessage(b.Name + " was hit by bomb!");
+                            }
+                            
+                        });
             });
         }
 
         public void MoveBall(string dir)
         {
-            var ball = UserData[Context.ClientId];
+            var ball = World.BallForUser(Context.ClientId);
 
             var newPosX = ball.LocX;
             var newPosY = ball.LocY;
@@ -139,22 +190,23 @@ namespace SignalRPlay.Web.Models
                 ball.LocY = newPosY;
                 ball.LastDir = dir;
             }
-            
+        }
+        
+        private void SendLogMessage(string message)
+        {
+            Clients.updateLog(message);
         }
 
-        private Ball Collides(int newX, int newY, int currentSize, bool ignoreSelf)
+        private Ball Collides(int newX, int newY, int currentRadius, bool ignoreSelf)
         {
-            foreach(var ball in UserData)
+            foreach (var ball in World.AllUserData())
             {
-                if(ignoreSelf && ball.Key == Context.ClientId)
+                if (ignoreSelf && ball.Key == Context.ClientId)
                 {
                     continue;
                 }
 
-                var dx = ball.Value.LocX - newX;
-                var dy = ball.Value.LocY - newY;
-                var sumRadius = ball.Value.Size + currentSize;
-                if ((dx * dx) + (dy * dy) < sumRadius * sumRadius)
+                if (SphereCollides(ball.Value.LocX, ball.Value.LocY, ball.Value.Size, newX, newY, currentRadius))
                 {
                     return ball.Value;
                 }
@@ -163,14 +215,29 @@ namespace SignalRPlay.Web.Models
             return null;
         }
 
+
+        private IEnumerable<Ball> BombExplodesOverBalls(int x, int y)
+        {
+            foreach (var ball in World.AllUserData())
+            {
+                if (SphereCollides(ball.Value.LocX, ball.Value.LocY, ball.Value.Size, x, y, 22))
+                {
+                    yield return ball.Value;
+                }
+            }
+        }
+
+        private static bool SphereCollides(int x1, int y1, int r1, int x2, int y2, int r2)
+        {
+            var dx = x1 - x2;
+            var dy = y1 - y2;
+            var sumRadius = r1 + r2;
+            return ((dx*dx) + (dy*dy) < sumRadius*sumRadius);
+        }
+
         public void Disconnect()
         {
             
         }
-    }
-
-    public class Deck
-    {
-        public string Name { get; set; }
     }
 }
