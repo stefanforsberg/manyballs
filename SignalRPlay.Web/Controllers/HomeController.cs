@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using SignalRPlay.Web.Models;
 
 namespace SignalRPlay.Web.Controllers
 {
@@ -16,25 +16,33 @@ namespace SignalRPlay.Web.Controllers
             return View();
         }
 
-        public ActionResult Test()
-        {
-            return View();
-        }
-
         [HttpPost]
-        public ActionResult Test(string name)
+        public ActionResult Index(string name)
         {
-            var c = new HttpCookie("user", name);
-            c.Expires = DateTime.Now.AddYears(1);
-            c.Path = "/";
-            Response.Cookies.Add(c);
-            return RedirectToAction("Test2");
-        }
+            
+            if(string.IsNullOrEmpty(name))
+            {
+                ModelState.AddModelError("name", "Får inte vara tomt.");
+            }
 
-        public ActionResult Test2()
+            if(Models.Game.World.AllUserData().Any(p => p.Key == name))
+            {
+                ModelState.AddModelError("name", "Upptaget namn.");
+            }
+
+            if(!ModelState.IsValid)
+            {
+                return View();
+            }
+
+            var c = new HttpCookie("user", name) {Expires = DateTime.Now.AddYears(1), Path = "/"};
+            Response.Cookies.Add(c);
+            return RedirectToAction("Game");
+        }
+        
+        public ActionResult Game()
         {
             return View();
         }
-
     }
 }

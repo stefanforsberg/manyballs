@@ -4,10 +4,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
+using SignalR;
 using SignalR.Hubs;
 
 namespace SignalRPlay.Web.Models
 {
+    public class UserIdClientIdFactory : IClientIdFactory
+    {
+        public string CreateClientId(HttpContextBase context)
+        {
+            return context.Request.Cookies["user"] == null ? Guid.NewGuid().ToString() : context.Request.Cookies["user"].Value;
+        }
+    }
+
     public class Ball
     {
         public string Name { get; set; }
@@ -22,14 +32,14 @@ namespace SignalRPlay.Web.Models
             var random = new Random();
 
             return new Ball
-                       {
-                           Name = name,
-                           Color = color,
-                           LocX = random.Next(15, 450), 
-                           LocY = random.Next(15, 450),
-                           LastDir = "r",
-                           Size = 40
-                       };
+            {
+                Name = name,
+                Color = color,
+                LocX = random.Next(15, 450), 
+                LocY = random.Next(15, 450),
+                LastDir = "r",
+                Size = 40
+            };
         }
     }
 
@@ -53,9 +63,9 @@ namespace SignalRPlay.Web.Models
             _userData = new ConcurrentDictionary<string, Ball>();
         }
 
-        public void AddBall(string clientId, string name, string color)
+        public void AddBall(string clientId, string color)
         {
-            _userData.AddOrUpdate(clientId, (k) => Ball.Random(name, color), (k, v) => Ball.Random(name, color));
+            _userData.AddOrUpdate(clientId, (k) => Ball.Random(clientId, color), (k, v) => Ball.Random(clientId, color));
         }
 
         public IEnumerable<Ball> AllBalls()
@@ -76,7 +86,7 @@ namespace SignalRPlay.Web.Models
 
     public class Game : Hub, IDisconnect
     {
-        static readonly World World;
+        public static readonly World World;
         static bool _startedHeartbeat;
 
         static Game()
@@ -93,7 +103,7 @@ namespace SignalRPlay.Web.Models
             }
         }
 
-        public void Join(string name, string color)
+        public void Join(string color)
         {
             if (!_startedHeartbeat)
             {
@@ -101,7 +111,7 @@ namespace SignalRPlay.Web.Models
                 _startedHeartbeat = true;
             }
 
-            World.AddBall(Context.ClientId, name, color);
+            World.AddBall(Context.ClientId, color);
             Clients.showUsers(World.AllUserData());
         }
 
@@ -112,16 +122,16 @@ namespace SignalRPlay.Web.Models
                 case "32":
                     SomeOneSetUsUpTheBomb();
                     break;
-                case "37":
+                case "65":
                     MoveBall("l");
                     break;
-                case "38":
+                case "87":
                     MoveBall("u");
                     break;
-                case "39":
+                case "68":
                     MoveBall("r");
                     break;
-                case "40":
+                case "83":
                     MoveBall("d");
                     break;
 
@@ -134,14 +144,30 @@ namespace SignalRPlay.Web.Models
 
             var x = ball.LocX - ball.Size / 2;
             var y = ball.LocY - ball.Size / 2;
+            var bombId = Guid.NewGuid();
+            switch(ball.LastDir)
+            {
+                case "r":
+                    x+= 50;
+                    break;
+                case "l":
+                    x -= 50;
+                    break;
+                case "u":
+                    y -= 50;
+                    break;
+                case "d":
+                    y += 50;
+                    break;
+            }
 
             SendLogMessage(ball.Name + " set us up the bomb!");
-            Clients.newBomb(x, y);
+            Clients.newBomb(x, y, bombId);
 
             Task.Factory.StartNew(() =>
             {
                 Thread.Sleep(5000);
-                Clients.newBombExplode(x, y);
+                Clients.newBombExplode(x, y, bombId);
 
                 BombExplodesOverBalls(x, y)
                     .ToList()
@@ -156,7 +182,6 @@ namespace SignalRPlay.Web.Models
                                 b.Size -= 5;
                                 SendLogMessage(b.Name + " was hit by bomb!");
                             }
-                            
                         });
             });
         }
