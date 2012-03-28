@@ -144,32 +144,35 @@ namespace SignalRPlay.Web.Models
 
             var x = ball.LocX - ball.Size / 2;
             var y = ball.LocY - ball.Size / 2;
+            var xspeed = 0;
+            var yspeed = 0;
+
             var bombId = Guid.NewGuid();
             switch(ball.LastDir)
             {
                 case "r":
-                    x+= 50;
+                    xspeed = -1;
                     break;
                 case "l":
-                    x -= 50;
+                    xspeed = 1;
                     break;
                 case "u":
-                    y -= 50;
+                    yspeed = 1;
                     break;
                 case "d":
-                    y += 50;
+                    yspeed = -1;
                     break;
             }
 
             SendLogMessage(ball.Name + " set us up the bomb!");
-            Clients.newBomb(x, y, bombId);
+            Clients.newBomb(x, y, xspeed, yspeed, bombId);
 
             Task.Factory.StartNew(() =>
             {
                 Thread.Sleep(5000);
                 Clients.newBombExplode(x, y, bombId);
 
-                BombExplodesOverBalls(x, y)
+                BombExplodesOverBalls(x + 90 * xspeed, y + 90 * yspeed)
                     .ToList()
                     .ForEach(b =>
                         {

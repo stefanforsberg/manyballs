@@ -106,28 +106,32 @@
 
             };
 
-            game.newBomb = function (x, y, bombId) {
-                $("#bomb-area").append("<canvas width=\"45\" height=\"45\" style=\"z-index: 50; top: " + y + "px; left: " + x + "px;\" id=\"bomb-" + bombId + "\"></canvas>");
+            game.newBomb = function (x, y, xspeed, yspeed, bombId) {
+                $("#bomb-area").append("<canvas width=\"500\" height=\"500\" style=\"z-index: 50; top: 35px; left: 5px;\" id=\"bomb-" + bombId + "\"></canvas>");
 
                 var bombCanvas = document.getElementById("bomb-" + bombId);
                 var contextBomb = bombCanvas.getContext('2d');
 
-                contextBomb.drawImage(img, 0, 0);
-                window.setTimeout(function () { coolDown(22, 22, 0, contextBomb); }, 55);
+                contextBomb.drawImage(img, x, y);
+                window.setTimeout(function () { coolDown(x + 22, y + 22, xspeed, yspeed, 0, contextBomb); }, 55);
             };
 
-            var coolDown = function (x, y, angle, contextBomb) {
-                contextBomb.fillStyle = "rgba(255, 0, 0, " + (0.3 + (angle / 360)) + ")";
+            var coolDown = function (x, y, xspeed, yspeed, angle, contextBomb) {
+                contextBomb.clearRect(0, 0, 500, 500);
+
+                contextBomb.drawImage(img, x - 22, y - 22);
+
+                contextBomb.fillStyle = "rgba(255, 0, 0, " + ((angle / 500)) + ")";
 
                 contextBomb.moveTo(x, y);
                 contextBomb.beginPath();
-                contextBomb.arc(x, y, 22, angle * Math.PI / 180, (angle + 5) * Math.PI / 180, false);
+                contextBomb.arc(x, y, 22, 0, (angle + 5) * Math.PI / 180, false);
                 contextBomb.lineTo(x, y);
                 contextBomb.fill();
                 contextBomb.closePath();
                 angle += 4;
                 if (angle < 360) {
-                    window.setTimeout(function () { coolDown(x, y, angle, contextBomb); }, 55);
+                    window.setTimeout(function () { coolDown(x+xspeed, y+yspeed, xspeed, yspeed, angle, contextBomb); }, 55);
                 }
             };
 
