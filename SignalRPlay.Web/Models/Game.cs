@@ -159,7 +159,8 @@ namespace SignalRPlay.Web.Models
 
         public void SomeOneSetUsUpTheBomb()
         {
-            var ball = World.BallForUser(Context.ClientId);
+            var clientId = Context.ClientId;
+            var ball = World.BallForUser(clientId);
 
             if(ball.ActiveBombs >= MaxActiveBombs)
             {
@@ -197,6 +198,8 @@ namespace SignalRPlay.Web.Models
             {
                 Thread.Sleep(5000);
                 Clients.newBombExplode(x, y, bombId);
+
+                World.BallForUser(clientId).ActiveBombs--;
 
                 BombExplodesOverBalls(x + 90 * xspeed, y + 90 * yspeed)
                     .ToList()
