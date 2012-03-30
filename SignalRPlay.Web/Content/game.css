@@ -1,0 +1,54 @@
+#game-area {
+    width: 800px;
+    display: none;    
+}
+        
+#myDrawing {
+    border: solid 3px #e2e2e2;
+    float: left;
+    margin-right: 30px;
+}
+        
+#users {
+    position: absolute;
+    top: 35px;
+    left: 550px;
+    z-index: 15;
+            
+    height: 500px;
+    width: 200px;
+    overflow: scroll;
+}
+        
+#log {
+    position: absolute;
+    top: 550px;
+    left: 400px;
+    width: 350px;
+    height: 200px;
+    overflow: hidden;
+}
+        
+#myDrawing {
+    position: absolute;
+    top: 35px;
+    left: 5px;
+    z-index: 10;
+}
+        
+#myBombs {
+    position: absolute;
+    top: 35px;
+    left: 5px;
+    z-index: 15;
+}
+        
+#bomb-area canvas {
+    position: absolute;
+}
+        
+ul {
+    list-style: none;
+    padding: 0px;
+    margin: 0px;
+}

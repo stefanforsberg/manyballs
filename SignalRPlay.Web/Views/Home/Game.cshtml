@@ -12,163 +12,17 @@
     <script src="../../Scripts/jquery.cookie.js" type="text/javascript"></script>
     <script src="../../Scripts/jquery.signalR.js" type="text/javascript"></script>
     <script src="../../Scripts/jquery.miniColors.min.js" type="text/javascript"></script>
+    <script src="../../Scripts/drawHelper.js" type="text/javascript"></script>
+    <script src="../../Scripts/app.js" type="text/javascript"></script>
     <script src="/signalr/hubs" type="text/javascript"></script>
     
     <link type="text/css" rel="stylesheet" href="../../Content/jquery.miniColors.css" />
-
-    <style type="text/css">
-        #game-area {
-            width: 800px;
-            display: none;    
-        }
-        
-        #myDrawing {
-            border: solid 3px #e2e2e2;
-            float: left;
-            margin-right: 30px;
-        }
-        
-        #users {
-            position: absolute;
-            top: 35px;
-            left: 550px;
-            z-index: 15;
-            
-            height: 500px;
-            width: 200px;
-            overflow: scroll;
-        }
-        
-        #log {
-            position: absolute;
-            top: 550px;
-            left: 400px;
-            width: 350px;
-            height: 200px;
-            overflow: hidden;
-        }
-        
-        #myDrawing {
-            position: absolute;
-            top: 35px;
-            left: 5px;
-            z-index: 10;
-        }
-        
-        #myBombs {
-            position: absolute;
-            top: 35px;
-            left: 5px;
-            z-index: 15;
-        }
-        
-        #bomb-area canvas {
-            position: absolute;
-        }
-        
-        ul {
-            list-style: none;
-            padding: 0px;
-            margin: 0px;
-        }
-    </style>
+    
+    <link type="text/css" rel="stylesheet" href="../../Content/game.css" />
 
     <script type="text/javascript">
         $(function () {
-            var img = new Image();
-            img.src = '../../MrBomb.png';
-
-            var drawingCanvas = document.getElementById('myDrawing');
-            var context = drawingCanvas.getContext('2d');
-
-            var game = $.connection.game;
             
-            $("#color").miniColors();
-
-            $.connection.hub.start(function () {
-
-            });
-
-            game.draw = function (data) {
-                context.clearRect(0, 0, 500, 500);
-
-                for (var i = 0; i < data.length; i++) {
-                    var ball = data[i].Value;
-
-                    drawCircle(context, ball.LocX, ball.LocY, ball.Size, "#000000");
-                    drawCircle(context, ball.LocX, ball.LocY, ball.Size - 1, ball.Color);
-                }
-            };
-
-            game.newBomb = function (x, y, xspeed, yspeed, bombId) {
-                $("#bomb-area").append("<canvas width=\"500\" height=\"500\" style=\"z-index: 50; top: 35px; left: 5px;\" id=\"bomb-" + bombId + "\"></canvas>");
-
-                var bombCanvas = document.getElementById("bomb-" + bombId);
-                var contextBomb = bombCanvas.getContext('2d');
-
-                contextBomb.drawImage(img, x, y);
-                window.setTimeout(function () { coolDown(x + 22, y + 22, xspeed, yspeed, 0, contextBomb); }, 55);
-            };
-
-            var coolDown = function (x, y, xspeed, yspeed, angle, contextBomb) {
-                contextBomb.clearRect(0, 0, 500, 500);
-
-                contextBomb.drawImage(img, x - 22, y - 22);
-
-                contextBomb.fillStyle = "rgba(255, 0, 0, " + ((angle / 500)) + ")";
-
-                contextBomb.moveTo(x, y);
-                contextBomb.beginPath();
-                contextBomb.arc(x, y, 22, 0, (angle + 5) * Math.PI / 180, false);
-                contextBomb.lineTo(x, y);
-                contextBomb.fill();
-                contextBomb.closePath();
-                angle += 4;
-                if (angle < 360) {
-                    window.setTimeout(function () { coolDown(x + xspeed, y + yspeed, xspeed, yspeed, angle, contextBomb); }, 55);
-                }
-            };
-
-            game.newBombExplode = function (x, y, bombId) {
-                $("#bomb-" + bombId).remove();
-            };
-
-            game.showUsers = function (data) {
-                $("#users ul").empty();
-
-                for (var i = 0; i < data.length; i++) {
-                    var ball = data[i].Value;
-
-                    $("#users ul").append('<li><span style="padding-right: 15px; margin-right: 5px; width: 15px; background-color: ' + ball.Color + '"></span> ' + ball.Name + '</li>');
-                }
-            };
-
-            game.updateLog = function (message) {
-                $("#log ul").prepend('<li>' + message + '</li>');
-            };
-
-            $("#join").click(function () {
-                $(this).attr('disabled', 'disabled');
-                game.join($("#color").val());
-                $("#game-area").show();
-            });
-
-            $("html").keydown(function (event) {
-                var kc = event.which;
-                if (kc == "32" || kc == "87" || kc == "65" || kc == "68" || kc == "83") {
-                    game.handleInput(kc);
-                }
-            });
-
-            function drawCircle(canvas, x, y, r, color) {
-                context.fillStyle = color;
-
-                context.beginPath();
-                context.arc(x, y, r, 0, Math.PI * 2, true);
-                context.closePath();
-
-                context.fill();
-            }
 
         });
     </script>
