@@ -2,6 +2,8 @@
     gameServer: null,
     context: null,
     img: null,
+    current_user_data: null,
+    new_user_data: null,
 
     initialize: function (c) {
         context = c;
@@ -9,20 +11,65 @@
         img.src = '../MrBomb.png';
     },
 
-    draw: function (data) {
+    updateCanvas: function () {
         context.clearRect(0, 0, 500, 500);
 
-        for (var i = 0; i < data.length; i++) {
-            var ball = data[i].Value;
+        for (var i = 0; i < new_user_data.length; i++) {
 
-            drawCircle(context, ball.LocX, ball.LocY, ball.Size, "#000000");
-            drawCircle(context, ball.LocX, ball.LocY, ball.Size - 1, ball.Color);
+            if (i >= current_user_data.length) {
+                current_user_data.push(new_user_data[i]);
+            }
+
+            var ball_old = current_user_data[i].Value;
+            var ball_new = new_user_data[i].Value;
+
+            var xpos = ball_old.LocX;
+            var ypos = ball_old.LocY;
+
+            if (xpos < ball_new.LocX) {
+                current_user_data[i].Value.LocX++;
+            }
+            else if (xpos > ball_new.LocX) {
+                current_user_data[i].Value.LocX--;
+            }
+
+            if (ypos < ball_new.LocY) {
+                current_user_data[i].Value.LocY++;
+            }
+            else if (ypos > ball_new.LocY) {
+                current_user_data[i].Value.LocY--;
+            }
+
+            drawCircle(context, xpos, ypos, ball_new.Size, "#000000");
+            drawCircle(context, xpos, ypos, ball_new.Size - 1, ball_new.Color);
         }
+
+        window.setTimeout(function () { Game.updateCanvas(); }, 10);
+    },
+
+    joined: function (data) {
+        current_user_data = data;
+        new_user_data = data;
+
+        window.setTimeout(function () { Game.updateCanvas(); }, 10);
+    },
+
+    draw: function (data) {
+        new_user_data = data;
+
+        //                context.clearRect(0, 0, 500, 500);
+
+        //                for (var i = 0; i < data.length; i++) {
+        //                    var ball = data[i].Value;
+
+        //                    drawCircle(context, ball.LocX, ball.LocY, ball.Size, "#000000");
+        //                    drawCircle(context, ball.LocX, ball.LocY, ball.Size - 1, ball.Color);
+        //                }
     },
 
     newBomb: function (x, y, xspeed, yspeed, bombId) {
         $("#bomb-area").append("<canvas width=\"500\" height=\"500\" style=\"z-index: 50; top: 35px; left: 5px;\" id=\"bomb-" + bombId + "\"></canvas>");
-        
+
         var bombCanvas = document.getElementById("bomb-" + bombId);
         var contextBomb = bombCanvas.getContext('2d');
 

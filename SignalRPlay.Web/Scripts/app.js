@@ -1,5 +1,5 @@
 ﻿$(document).ready(function () {
-    
+
 
     var drawingCanvas = document.getElementById('myDrawing');
     var context = drawingCanvas.getContext('2d');
@@ -14,16 +14,17 @@
             $.connection.hub.start(function () {
 
             });
-            
+
             Game.initialize(context);
 
+            gameServer.joined = Game.joined;
             gameServer.draw = Game.draw;
             gameServer.newBomb = Game.newBomb;
             gameServer.newBombExplode = Game.newBombExplode;
             gameServer.showUsers = Game.showUsers;
             gameServer.updateLog = Game.updateLog;
 
-            
+
 
         });
 

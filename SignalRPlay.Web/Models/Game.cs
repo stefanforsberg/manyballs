@@ -131,6 +131,7 @@ namespace SignalRPlay.Web.Models
             }
 
             World.AddBall(Context.ClientId, color, x, y);
+            Caller.joined(World.AllUserData());
             Clients.showUsers(World.AllUserData());
         }
 
@@ -201,7 +202,7 @@ namespace SignalRPlay.Web.Models
 
                 World.BallForUser(clientId).ActiveBombs--;
 
-                BombExplodesOverBalls(x + 90 * xspeed, y + 90 * yspeed)
+                BombExplodesOverBalls(x +22 + 90 * xspeed, y + 22 + 90 * yspeed)
                     .ToList()
                     .ForEach(b =>
                         {
@@ -227,7 +228,7 @@ namespace SignalRPlay.Web.Models
             var newPosX = ball.LocX;
             var newPosY = ball.LocY;
 
-            var speed = 30;
+            var speed = 3;
 
             switch(dir)
             {
