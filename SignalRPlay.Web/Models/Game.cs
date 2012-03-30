@@ -26,17 +26,17 @@ namespace SignalRPlay.Web.Models
         public int LocY { get; set; }
         public string LastDir { get; set; }
         public int Size { get; set; }
+        public int ActiveBombs { get; set; }
 
-        public static Ball Random(string name, string color)
+        public static Ball Random(string name, string color, int x, int y)
         {
-            var random = new Random();
-
             return new Ball
             {
                 Name = name,
+                ActiveBombs = 0,
                 Color = color,
-                LocX = random.Next(15, 450), 
-                LocY = random.Next(15, 450),
+                LocX = x, 
+                LocY = y,
                 LastDir = "r",
                 Size = 40
             };
@@ -63,9 +63,9 @@ namespace SignalRPlay.Web.Models
             _userData = new ConcurrentDictionary<string, Ball>();
         }
 
-        public void AddBall(string clientId, string color)
+        public void AddBall(string clientId, string color, int x, int y)
         {
-            _userData.AddOrUpdate(clientId, (k) => Ball.Random(clientId, color), (k, v) => Ball.Random(clientId, color));
+            _userData.AddOrUpdate(clientId, (k) => Ball.Random(clientId, color, x, y), (k, v) => Ball.Random(clientId, color, x, y));
         }
 
         public IEnumerable<Ball> AllBalls()
@@ -96,10 +96,18 @@ namespace SignalRPlay.Web.Models
 
         private void Heartbeat()
         {
+            int foodCounter = 0;
+
             while(true)
             {
+                foodCounter++;
                 Thread.Sleep(100);
-                Clients.draw(World.AllUserData());                
+                Clients.draw(World.AllUserData());      
+
+                if(foodCounter > 10)
+                {
+                    
+                }
             }
         }
 
@@ -111,7 +119,18 @@ namespace SignalRPlay.Web.Models
                 _startedHeartbeat = true;
             }
 
-            World.AddBall(Context.ClientId, color);
+            var random = new Random();
+
+            var x = random.Next(15, 450);
+            var y = random.Next(15, 450);
+
+            while (Collides(x, y, 50, true) != null)
+            {
+                x = random.Next(15, 450);
+                y = random.Next(15, 450);
+            }
+
+            World.AddBall(Context.ClientId, color, x, y);
             Clients.showUsers(World.AllUserData());
         }
 
@@ -141,6 +160,13 @@ namespace SignalRPlay.Web.Models
         public void SomeOneSetUsUpTheBomb()
         {
             var ball = World.BallForUser(Context.ClientId);
+
+            if(ball.ActiveBombs >= MaxActiveBombs)
+            {
+                return;
+            }
+
+            ball.ActiveBombs++;
 
             var x = ball.LocX - ball.Size / 2;
             var y = ball.LocY - ball.Size / 2;
@@ -189,6 +215,8 @@ namespace SignalRPlay.Web.Models
             });
         }
 
+        public const int MaxActiveBombs = 3;
+
         public void MoveBall(string dir)
         {
             var ball = World.BallForUser(Context.ClientId);
@@ -196,19 +224,21 @@ namespace SignalRPlay.Web.Models
             var newPosX = ball.LocX;
             var newPosY = ball.LocY;
 
+            var speed = 30;
+
             switch(dir)
             {
                 case "r":
-                    if (newPosX < 500) newPosX++;
+                    if (newPosX < 500) newPosX+=speed;
                     break;
                 case "l":
-                    if (newPosX > 0) newPosX--;
+                    if (newPosX > 0) newPosX-=speed;
                     break;
                 case "u":
-                    if (newPosY > 0) newPosY--;
+                    if (newPosY > 0) newPosY -= speed;
                     break;
                 case "d":
-                    if (newPosY < 500) newPosY++;
+                    if (newPosY < 500) newPosY+= speed;
                     break;
             }
 

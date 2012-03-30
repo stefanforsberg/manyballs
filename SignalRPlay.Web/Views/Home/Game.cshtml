@@ -82,7 +82,7 @@
             var context = drawingCanvas.getContext('2d');
 
             var game = $.connection.game;
-
+            
             $("#color").miniColors();
 
             $.connection.hub.start(function () {
@@ -95,15 +95,9 @@
                 for (var i = 0; i < data.length; i++) {
                     var ball = data[i].Value;
 
-                    context.fillStyle = ball.Color;
-
-                    context.beginPath();
-                    context.arc(ball.LocX, ball.LocY, ball.Size, 0, Math.PI * 2, true);
-                    context.closePath();
-
-                    context.fill();
+                    drawCircle(context, ball.LocX, ball.LocY, ball.Size, "#000000");
+                    drawCircle(context, ball.LocX, ball.LocY, ball.Size - 1, ball.Color);
                 }
-
             };
 
             game.newBomb = function (x, y, xspeed, yspeed, bombId) {
@@ -131,7 +125,7 @@
                 contextBomb.closePath();
                 angle += 4;
                 if (angle < 360) {
-                    window.setTimeout(function () { coolDown(x+xspeed, y+yspeed, xspeed, yspeed, angle, contextBomb); }, 55);
+                    window.setTimeout(function () { coolDown(x + xspeed, y + yspeed, xspeed, yspeed, angle, contextBomb); }, 55);
                 }
             };
 
@@ -165,6 +159,16 @@
                     game.handleInput(kc);
                 }
             });
+
+            function drawCircle(canvas, x, y, r, color) {
+                context.fillStyle = color;
+
+                context.beginPath();
+                context.arc(x, y, r, 0, Math.PI * 2, true);
+                context.closePath();
+
+                context.fill();
+            }
 
         });
     </script>
