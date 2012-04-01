@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -122,8 +121,6 @@ namespace SignalRPlay.Web.Models
     public class Game : Hub, IDisconnect
     {
         public static readonly World World;
-        static bool _startedHeartbeat;
-        static bool _isRunning;
 
         static Game()
         {
@@ -156,7 +153,6 @@ namespace SignalRPlay.Web.Models
             {
                 World.IsRunning = true;
                 Task.Factory.StartNew(Heartbeat);
-                _startedHeartbeat = true;
             }
 
             var pos = GetNonCollidingPosition(50);

@@ -34,25 +34,53 @@
                 current_user_data[i].Value.Size--;
             }
 
-            if (xpos < ball_new.LocX) {
-                current_user_data[i].Value.LocX++;
-            }
-            else if (xpos > ball_new.LocX) {
-                current_user_data[i].Value.LocX--;
-            }
+            current_user_data[i].Value.LocX += Game.differ(xpos, ball_new.LocX);
+            current_user_data[i].Value.LocY += Game.differ(ypos, ball_new.LocY);
 
-            if (ypos < ball_new.LocY) {
-                current_user_data[i].Value.LocY++;
-            }
-            else if (ypos > ball_new.LocY) {
-                current_user_data[i].Value.LocY--;
-            }
+
+            //            if (xpos < ball_new.LocX) {
+            //                current_user_data[i].Value.LocX++;
+            //            }
+            //            else if (xpos > ball_new.LocX) {
+            //                current_user_data[i].Value.LocX--;
+            //            }
+
+            //            if (ypos < ball_new.LocY) {
+            //                current_user_data[i].Value.LocY++;
+            //            }
+            //            else if (ypos > ball_new.LocY) {
+            //                current_user_data[i].Value.LocY--;
+            //            }
 
             drawCircle(context, current_user_data[i].Value.LocX, current_user_data[i].Value.LocY, current_user_data[i].Value.Size, "#000000");
             drawCircle(context, current_user_data[i].Value.LocX, current_user_data[i].Value.LocY, current_user_data[i].Value.Size - 1, ball_new.Color);
         }
 
         window.setTimeout(function () { Game.updateCanvas(); }, 10);
+    },
+
+    differ: function (a1, a2) {
+        var total = 0;
+
+        var diffDirection = 0;
+
+        if (a1 < a2) {
+            diffDirection = 1;
+        }
+        else if (a1 > a2) {
+            diffDirection = -1;
+        }
+
+        var absDiff = Math.abs(a1 - a2);
+
+        if (absDiff < 4) {
+            total = diffDirection * (absDiff * 0.1);
+        }
+        else {
+            total = diffDirection;
+        }
+
+        return total;
     },
 
     joined: function (data) {
