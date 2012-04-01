@@ -44,5 +44,11 @@ namespace SignalRPlay.Web.Controllers
         {
             return View();
         }
+
+        public ActionResult Reset()
+        {
+            Models.Game.World.ResetAll();
+            return RedirectToAction("Game");
+        }
     }
 }

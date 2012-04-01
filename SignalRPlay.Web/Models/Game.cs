@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,18 +55,39 @@ namespace SignalRPlay.Web.Models
         }
     }
 
+    public struct Pos
+    {
+        public int X { get; set; }
+        public int Y { get; set; }
+        public int Size { get; set; }
+    }
+
     public class World
     {
         static ConcurrentDictionary<string, Ball> _userData;
+        static ConcurrentDictionary<Guid, Pos> _food;
+        public static bool IsRunning;
 
         public World()
         {
             _userData = new ConcurrentDictionary<string, Ball>();
+            _food = new ConcurrentDictionary<Guid, Pos>();
+            IsRunning = false;
         }
 
         public void AddBall(string clientId, string color, int x, int y)
         {
             _userData.AddOrUpdate(clientId, (k) => Ball.Random(clientId, color, x, y), (k, v) => Ball.Random(clientId, color, x, y));
+        }
+
+        public void AddFood(Pos pos)
+        {
+            _food.AddOrUpdate(Guid.NewGuid(), (k) => pos, (k, v) => pos);
+        }
+
+        public IEnumerable<KeyValuePair<Guid, Pos>> AllFood()
+        {
+            return _food.ToArray();
         }
 
         public IEnumerable<Ball> AllBalls()
@@ -82,12 +104,26 @@ namespace SignalRPlay.Web.Models
         {
             return _userData[clientId];
         }
+
+        public void RemoveFood(Guid id)
+        {
+            Pos removedFood;
+            _food.TryRemove(id, out removedFood);
+        }
+
+        public void ResetAll()
+        {
+            IsRunning = false;
+            _userData.Clear();
+            _food.Clear();
+        }
     }
 
     public class Game : Hub, IDisconnect
     {
         public static readonly World World;
         static bool _startedHeartbeat;
+        static bool _isRunning;
 
         static Game()
         {
@@ -98,41 +134,54 @@ namespace SignalRPlay.Web.Models
         {
             int foodCounter = 0;
 
-            while(true)
+            while (World.IsRunning)
             {
                 foodCounter++;
                 Thread.Sleep(100);
                 Clients.draw(World.AllUserData());      
 
-                if(foodCounter > 10)
+                if(foodCounter > 100)
                 {
-                    
+                    var pos = GetNonCollidingPosition(15);
+                    World.AddFood(pos);
+                    Clients.addFood(pos.X, pos.Y);
+                    foodCounter = 0;
                 }
             }
         }
 
         public void Join(string color)
         {
-            if (!_startedHeartbeat)
+            if (!World.IsRunning)
             {
+                World.IsRunning = true;
                 Task.Factory.StartNew(Heartbeat);
                 _startedHeartbeat = true;
             }
 
+            var pos = GetNonCollidingPosition(50);
+
+            World.AddBall(Context.ClientId, color, pos.X, pos.Y);
+            World.AllFood().ToList().ForEach(f => Caller.addFood(f.Value.X, f.Value.Y));
+            Caller.joined(World.AllUserData());
+            Clients.showUsers(World.AllUserData());
+
+        }
+
+        private Pos GetNonCollidingPosition(int size)
+        {
             var random = new Random();
 
             var x = random.Next(15, 450);
             var y = random.Next(15, 450);
 
-            while (Collides(x, y, 50, true) != null)
+            while (Collides(x, y, size, true) != null)
             {
                 x = random.Next(15, 450);
                 y = random.Next(15, 450);
             }
 
-            World.AddBall(Context.ClientId, color, x, y);
-            Caller.joined(World.AllUserData());
-            Clients.showUsers(World.AllUserData());
+            return new Pos { X = x, Y = y, Size = size};
         }
 
         public void HandleInput(string keyCode)
@@ -168,6 +217,7 @@ namespace SignalRPlay.Web.Models
                 return;
             }
 
+
             ball.ActiveBombs++;
 
             var x = ball.LocX - ball.Size / 2;
@@ -179,20 +229,19 @@ namespace SignalRPlay.Web.Models
             switch(ball.LastDir)
             {
                 case "r":
-                    xspeed = -1;
+                    xspeed = -2;
                     break;
                 case "l":
-                    xspeed = 1;
+                    xspeed = 2;
                     break;
                 case "u":
-                    yspeed = 1;
+                    yspeed = 2;
                     break;
                 case "d":
-                    yspeed = -1;
+                    yspeed = -2;
                     break;
             }
 
-            SendLogMessage(ball.Name + " set us up the bomb!");
             Clients.newBomb(x, y, xspeed, yspeed, bombId);
 
             Task.Factory.StartNew(() =>
@@ -252,6 +301,17 @@ namespace SignalRPlay.Web.Models
                 ball.LocY = newPosY;
                 ball.LastDir = dir;
             }
+
+            EatsFood(ball)
+                .ToList()
+                .ForEach(f =>
+                    {
+                        World.RemoveFood(f.Key);
+                        Clients.foodEaten(f.Value.X, f.Value.Y);
+                        SendLogMessage(ball.Name + " ate some food!");
+                        ball.Size += 5;
+                    });
+
         }
         
         private void SendLogMessage(string message)
@@ -277,6 +337,16 @@ namespace SignalRPlay.Web.Models
             return null;
         }
 
+        private IEnumerable<KeyValuePair<Guid, Pos>> EatsFood(Ball ballToCheck)
+        {
+            foreach (var food in World.AllFood())
+            {
+                if (SphereCollides(food.Value.X, food.Value.Y, food.Value.Size, ballToCheck.LocX, ballToCheck.LocY, ballToCheck.Size))
+                {
+                    yield return food;
+                }
+            }
+        }
 
         private IEnumerable<Ball> BombExplodesOverBalls(int x, int y)
         {

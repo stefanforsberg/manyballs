@@ -42,6 +42,13 @@
     left: 5px;
     z-index: 15;
 }
+  
+#food {
+    position: absolute;
+    top: 35px;
+    left: 5px;
+    z-index: 8;
+}  
         
 #bomb-area canvas {
     position: absolute;

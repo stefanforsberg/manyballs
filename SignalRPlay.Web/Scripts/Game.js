@@ -25,6 +25,14 @@
 
             var xpos = ball_old.LocX;
             var ypos = ball_old.LocY;
+            var size = ball_old.Size;
+
+            if (size < ball_new.Size) {
+                current_user_data[i].Value.Size++;
+            }
+            else if (size > ball_new.Size) {
+                current_user_data[i].Value.Size--;
+            }
 
             if (xpos < ball_new.LocX) {
                 current_user_data[i].Value.LocX++;
@@ -40,8 +48,8 @@
                 current_user_data[i].Value.LocY--;
             }
 
-            drawCircle(context, xpos, ypos, ball_new.Size, "#000000");
-            drawCircle(context, xpos, ypos, ball_new.Size - 1, ball_new.Color);
+            drawCircle(context, current_user_data[i].Value.LocX, current_user_data[i].Value.LocY, current_user_data[i].Value.Size, "#000000");
+            drawCircle(context, current_user_data[i].Value.LocX, current_user_data[i].Value.LocY, current_user_data[i].Value.Size - 1, ball_new.Color);
         }
 
         window.setTimeout(function () { Game.updateCanvas(); }, 10);
