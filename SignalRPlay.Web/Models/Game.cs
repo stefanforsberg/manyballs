@@ -135,9 +135,9 @@ namespace SignalRPlay.Web.Models
             {
                 foodCounter++;
                 Thread.Sleep(100);
-                Clients.draw(World.AllUserData());      
+                Clients.draw(World.AllUserData());
 
-                if(foodCounter > 100)
+                if (foodCounter > 100)
                 {
                     var pos = GetNonCollidingPosition(15);
                     World.AddFood(pos);

@@ -97,6 +97,7 @@
     <Content Include="Content\themes\base\images\ui-icons_888888_256x240.png" />
     <Content Include="Content\themes\base\images\ui-icons_cd0a0a_256x240.png" />
     <Content Include="Scripts\app.js" />
+    <Content Include="Scripts\bomb.js" />
     <Content Include="Scripts\drawHelper.js" />
     <Content Include="Scripts\food.js" />
     <Content Include="Scripts\Game.js" />
