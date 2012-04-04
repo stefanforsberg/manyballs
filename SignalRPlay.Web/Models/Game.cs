@@ -20,6 +20,7 @@ namespace SignalRPlay.Web.Models
 
     public class Ball
     {
+        public const int MaxSize = 75;
         public string Name { get; set; }
         public string Color { get; set; }
         public int LocX { get; set; }
@@ -27,6 +28,7 @@ namespace SignalRPlay.Web.Models
         public string LastDir { get; set; }
         public int Size { get; set; }
         public int ActiveBombs { get; set; }
+        public int Score { get; set; }
 
         public static Ball Random(string name, string color, int x, int y)
         {
@@ -38,7 +40,8 @@ namespace SignalRPlay.Web.Models
                 LocX = x, 
                 LocY = y,
                 LastDir = "r",
-                Size = 40
+                Size = 40,
+                Score = 0
             };
         }
     }
@@ -137,13 +140,12 @@ namespace SignalRPlay.Web.Models
                 Thread.Sleep(100);
                 Clients.draw(World.AllUserData());
 
-                if (foodCounter > 100)
-                {
-                    var pos = GetNonCollidingPosition(15);
-                    World.AddFood(pos);
-                    Clients.addFood(pos.X, pos.Y);
-                    foodCounter = 0;
-                }
+                if (foodCounter <= 100) continue;
+
+                var pos = GetNonCollidingPosition(15);
+                World.AddFood(pos);
+                Clients.addFood(pos.X, pos.Y);
+                foodCounter = 0;
             }
         }
 
@@ -305,7 +307,15 @@ namespace SignalRPlay.Web.Models
                         World.RemoveFood(f.Key);
                         Clients.foodEaten(f.Value.X, f.Value.Y);
                         SendLogMessage(ball.Name + " ate some food!");
-                        ball.Size += 5;
+                        
+                        if(ball.Size < Ball.MaxSize)
+                        {
+                            ball.Size += 5;    
+                        }
+
+                        ball.Score++;
+
+                        Clients.showUsers(World.AllUserData());
                     });
 
         }

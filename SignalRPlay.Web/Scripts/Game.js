@@ -4,15 +4,19 @@
     img: null,
     current_user_data: null,
     new_user_data: null,
+    tailCounter: null,
 
     initialize: function (c) {
         context = c;
         img = new Image();
         img.src = '../MrBomb.png';
+        tailCounter = 0;
     },
 
     updateCanvas: function () {
         context.clearRect(0, 0, 500, 500);
+
+        tailCounter++;
 
         for (var i = 0; i < new_user_data.length; i++) {
 
@@ -40,24 +44,40 @@
             current_user_data[i].Value.LocX += Game.differ(xpos, ball_new.LocX);
             current_user_data[i].Value.LocY += Game.differ(ypos, ball_new.LocY);
 
-            Game.drawBall(current_user_data[i]);
+            Game.drawBall(current_user_data[i], tailCounter);
         }
 
         window.setTimeout(function () { Game.updateCanvas(); }, 10);
     },
 
-    drawBall: function (ball) {
+    drawBall: function (ball, tailCounter) {
         var shade = shadeColor(ball.Value.Color, -70);
         var eyeSize = ball.Value.Size / 10;
 
         var eyePosition = ball.Value.Size / 2;
         var eyeDistance = ball.Value.Size / 3;
 
+        var tail = [
+            {
+                size: ball.Value.Size / 3,
+                x: ball.Value.LocX,
+                y: ball.Value.LocY,
+                tailx: 3 * Math.cos((tailCounter + 45) / 20),
+                taily: 3 * Math.sin((tailCounter + 45) / 20),
+                placementDelta: ball.Value.Size - (ball.Value.Size / 10)
+            },
+            {
+                size: ball.Value.Size / 6,
+                x: ball.Value.LocX,
+                y: ball.Value.LocY,
+                tailx: 3 * Math.cos((tailCounter) / 20),
+                taily: 3 * Math.sin((tailCounter) / 20),
+                placementDelta: (ball.Value.Size - (ball.Value.Size / 10) + (ball.Value.Size / 3))
+            }
+        ];
+
         var leftEye = { x: ball.Value.LocX, y: ball.Value.LocY };
         var rightEye = { x: ball.Value.LocX, y: ball.Value.LocY };
-
-        drawCircle(context, ball.Value.LocX, ball.Value.LocY, ball.Value.Size, shade);
-        drawCircle(context, ball.Value.LocX, ball.Value.LocY, ball.Value.Size - 1, ball.Value.Color);
 
         if (ball.Value.LastDir === "r") {
             leftEye.x += eyePosition;
@@ -65,6 +85,12 @@
 
             rightEye.x += eyePosition;
             rightEye.y -= eyeDistance;
+
+            tail[0].x -= tail[0].placementDelta;
+            tail[1].x -= tail[1].placementDelta;
+
+            tail[0].y = tail[0].y + tail[0].taily;
+            tail[1].y = tail[1].y + tail[1].taily;
         }
         if (ball.Value.LastDir === "l") {
             leftEye.x -= eyePosition;
@@ -72,6 +98,12 @@
 
             rightEye.x -= eyePosition;
             rightEye.y -= eyeDistance;
+
+            tail[0].x += tail[0].placementDelta;
+            tail[1].x += tail[1].placementDelta;
+
+            tail[0].y = tail[0].y + tail[0].taily;
+            tail[1].y = tail[1].y + tail[1].taily;
         }
         if (ball.Value.LastDir === "u") {
             leftEye.x -= eyeDistance;
@@ -79,6 +111,12 @@
 
             rightEye.x += eyeDistance;
             rightEye.y -= eyePosition;
+
+            tail[0].y += tail[0].placementDelta;
+            tail[1].y += tail[1].placementDelta;
+
+            tail[0].x = tail[0].x + tail[0].tailx;
+            tail[1].x = tail[1].x + tail[1].tailx;
         }
         if (ball.Value.LastDir === "d") {
             leftEye.x -= eyeDistance;
@@ -86,10 +124,23 @@
 
             rightEye.x += eyeDistance;
             rightEye.y += eyePosition;
+
+            tail[0].y -= tail[0].placementDelta;
+            tail[1].y -= tail[1].placementDelta;
+
+            tail[0].x = tail[0].x + tail[0].tailx;
+            tail[1].x = tail[1].x + tail[1].tailx;
         }
+
+        drawCircle(context, tail[0].x, tail[0].y, tail[0].size, shade);
+        drawCircle(context, tail[1].x, tail[1].y, tail[1].size, shade);
+
+        drawCircle(context, ball.Value.LocX, ball.Value.LocY, ball.Value.Size, shade);
+        drawCircle(context, ball.Value.LocX, ball.Value.LocY, ball.Value.Size - 1, ball.Value.Color);
 
         drawCircle(context, leftEye.x, leftEye.y, eyeSize + 1, shade);
         drawCircle(context, rightEye.x, rightEye.y, eyeSize + 1, shade);
+
         drawCircle(context, leftEye.x, leftEye.y, eyeSize, "#ffffff");
         drawCircle(context, rightEye.x, rightEye.y, eyeSize, "#ffffff");
     },
@@ -147,7 +198,7 @@
         for (var i = 0; i < data.length; i++) {
             var ball = data[i].Value;
 
-            $("#users ul").append('<li><span style="padding-right: 15px; margin-right: 5px; width: 15px; background-color: ' + ball.Color + '"></span> ' + ball.Name + '</li>');
+            $("#users ul").append('<li><span style="padding-right: 15px; margin-right: 5px; width: 15px; background-color: ' + ball.Color + '"></span> ' + ball.Name + '(' + ball.Score + ')</li>');
         }
     },
 
