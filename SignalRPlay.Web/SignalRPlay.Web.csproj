@@ -78,6 +78,7 @@
     <Content Include="Content\images\gradient.png" />
     <Content Include="Content\images\line.gif" />
     <Content Include="Content\images\rainbow.png" />
+    <Content Include="Content\images\tex2res5.png" />
     <Content Include="Content\images\trigger.png" />
     <Content Include="Content\jquery.miniColors.css" />
     <Content Include="Global.asax" />

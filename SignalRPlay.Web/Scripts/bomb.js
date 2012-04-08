@@ -9,7 +9,7 @@
 }
 
 Bomb.prototype.add = function () {
-    $("#bomb-area").append("<canvas width=\"500\" height=\"500\" style=\"z-index: 50; top: 35px; left: 5px;\" id=\"bomb-" + this.id + "\"></canvas>");
+    $("#bomb-area").append("<canvas width=\"800\" height=\"500\" style=\"z-index: 50; top: 35px; left: 5px;\" id=\"bomb-" + this.id + "\"></canvas>");
     this.contextBomb = document.getElementById("bomb-" + this.id).getContext('2d');
     this.contextBomb.drawImage(this.img, this.x, this.y);
 
@@ -22,7 +22,7 @@ Bomb.prototype.add = function () {
 };
 
 Bomb.prototype.Animate = function () {
-    this.contextBomb.clearRect(0, 0, 500, 500);
+    this.contextBomb.clearRect(0, 0, Game.width, Game.height);
 
     this.contextBomb.drawImage(img, this.x - 22, this.y - 22);
 

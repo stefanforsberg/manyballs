@@ -1,6 +1,37 @@
+body {
+    
+    background-color: #f3f3f3;
+}
+
+header {
+    float: left;
+}
+
+h1 {
+    font-family: 'Open Sans Condensed', sans-serif;;
+    text-shadow: #6D989E 1px 1px 0px;
+    font-size: 4em;
+    color: #A4E2EA;
+    margin: 0;
+    padding: 0;
+    float: left;
+}
+
+#color-chooser {
+    float: left; 
+    margin-left: 35px; 
+    margin-top: 47px;
+}
+
 #game-area {
+    position: absolute;
+    top: 95px;
+    left: 15px;
     width: 800px;
+    height: 500px;
     display: none;    
+    background-image: url(images/tex2res5.png);
+    background-repeat: repeat;    
 }
         
 #myDrawing {
@@ -11,8 +42,8 @@
         
 #users {
     position: absolute;
-    top: 35px;
-    left: 550px;
+    top: 95px;
+    left: 850px;
     z-index: 15;
             
     height: 500px;
@@ -22,7 +53,7 @@
         
 #log {
     position: absolute;
-    top: 550px;
+    top: 610px;
     left: 400px;
     width: 350px;
     height: 200px;
@@ -31,22 +62,23 @@
         
 #myDrawing {
     position: absolute;
-    top: 35px;
-    left: 5px;
+    top: 0px;
+    left: 0px;
     z-index: 10;
+    border: solid 1px #999999;
 }
         
 #myBombs {
     position: absolute;
-    top: 35px;
-    left: 5px;
+    top: 0px;
+    left: 0px;
     z-index: 15;
 }
   
 #food {
     position: absolute;
-    top: 35px;
-    left: 5px;
+    top: 0px;
+    left: 0px;
     z-index: 8;
 }  
         

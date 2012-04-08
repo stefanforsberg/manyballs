@@ -69,6 +69,8 @@ namespace SignalRPlay.Web.Models
         static ConcurrentDictionary<string, Ball> _userData;
         static ConcurrentDictionary<Guid, Pos> _food;
         public static bool IsRunning;
+        public static int Width = 800;
+        public static int Height = 500;
 
         public World()
         {
@@ -170,13 +172,13 @@ namespace SignalRPlay.Web.Models
         {
             var random = new Random();
 
-            var x = random.Next(15, 450);
-            var y = random.Next(15, 450);
+            var x = random.Next(15, World.Width-50);
+            var y = random.Next(15, World.Height - 50);
 
             while (Collides(x, y, size, true) != null)
             {
-                x = random.Next(15, 450);
-                y = random.Next(15, 450);
+                x = random.Next(15, World.Width - 50);
+                y = random.Next(15, World.Height - 50);
             }
 
             return new Pos { X = x, Y = y, Size = size};
@@ -280,7 +282,7 @@ namespace SignalRPlay.Web.Models
             switch(dir)
             {
                 case "r":
-                    if (newPosX < 500) newPosX+=speed;
+                    if (newPosX < World.Width) newPosX+=speed;
                     break;
                 case "l":
                     if (newPosX > 0) newPosX-=speed;
@@ -289,7 +291,7 @@ namespace SignalRPlay.Web.Models
                     if (newPosY > 0) newPosY -= speed;
                     break;
                 case "d":
-                    if (newPosY < 500) newPosY+= speed;
+                    if (newPosY < World.Height) newPosY+= speed;
                     break;
             }
 

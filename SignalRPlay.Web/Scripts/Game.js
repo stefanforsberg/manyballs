@@ -5,6 +5,8 @@
     current_user_data: null,
     new_user_data: null,
     tailCounter: null,
+    width: 800,
+    height: 500,
 
     initialize: function (c) {
         context = c;
@@ -14,7 +16,7 @@
     },
 
     updateCanvas: function () {
-        context.clearRect(0, 0, 500, 500);
+        context.clearRect(0, 0, Game.width, Game.height);
 
         tailCounter++;
 
@@ -52,6 +54,7 @@
 
     drawBall: function (ball, tailCounter) {
         var shade = shadeColor(ball.Value.Color, -70);
+        
         var eyeSize = ball.Value.Size / 10;
 
         var eyePosition = ball.Value.Size / 2;
@@ -137,7 +140,7 @@
 
         drawCircle(context, ball.Value.LocX, ball.Value.LocY, ball.Value.Size, shade);
         drawCircle(context, ball.Value.LocX, ball.Value.LocY, ball.Value.Size - 1, ball.Value.Color);
-
+        
         drawCircle(context, leftEye.x, leftEye.y, eyeSize + 1, shade);
         drawCircle(context, rightEye.x, rightEye.y, eyeSize + 1, shade);
 
