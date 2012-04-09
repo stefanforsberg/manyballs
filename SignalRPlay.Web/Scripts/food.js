@@ -51,7 +51,7 @@
         }
 
         if (Food.foods.length > 0) {
-            window.setTimeout(function () { Food.drawFood(); }, 10);
+            window.setTimeout(function () { Food.drawFood(); }, 40);
         }
 
     },
