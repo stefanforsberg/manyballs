@@ -29,6 +29,8 @@ namespace SignalRPlay.Web.Models
         public int Size { get; set; }
         public int ActiveBombs { get; set; }
         public int Score { get; set; }
+        public int Xspeed { get; set; }
+        public int Yspeed { get; set; }
 
         public static Ball Random(string name, string color, int x, int y)
         {
@@ -41,7 +43,9 @@ namespace SignalRPlay.Web.Models
                 LocY = y,
                 LastDir = "r",
                 Size = 40,
-                Score = 0
+                Score = 0,
+                Xspeed = 0,
+                Yspeed = 0
             };
         }
     }
@@ -151,12 +155,58 @@ namespace SignalRPlay.Web.Models
             }
         }
 
+        private void Gameloop()
+        {
+            while (World.IsRunning)
+            {
+                foreach (var ball in World.AllBalls())
+                {
+                    var newPosX = ball.LocX + ball.Xspeed;
+                    var newPosY = ball.LocY + ball.Yspeed;
+
+                    if (newPosX >= World.Width) newPosX = World.Width;
+                    if (newPosX <= 0) newPosX = 0;
+                    if (newPosY <= 0) newPosY = 0;
+                    if (newPosY >= World.Height) newPosY = World.Height;
+
+                    if (Collides(newPosX, newPosY, ball.Size, true) == null)
+                    {
+                        ball.LocX = newPosX;
+                        ball.LocY = newPosY;
+                    }
+
+                    EatsFood(ball)
+                        .ToList()
+                        .ForEach(f =>
+                        {
+                            World.RemoveFood(f.Key);
+                            Clients.foodEaten(f.Value.X, f.Value.Y);
+                            SendLogMessage(ball.Name + " ate some food!");
+
+                            if (ball.Size < Ball.MaxSize)
+                            {
+                                ball.Size += 5;
+                            }
+
+                            ball.Score++;
+
+                            Clients.showUsers(World.AllUserData());
+                        });
+
+                    Thread.Sleep(50);
+                }
+            }
+
+        }
+
         public void Join(string color)
         {
             if (!World.IsRunning)
             {
                 World.IsRunning = true;
+                Task.Factory.StartNew(Gameloop);
                 Task.Factory.StartNew(Heartbeat);
+                
             }
 
             var pos = GetNonCollidingPosition(50);
@@ -184,7 +234,7 @@ namespace SignalRPlay.Web.Models
             return new Pos { X = x, Y = y, Size = size};
         }
 
-        public void HandleInput(string keyCode)
+        public void HandleInput(string keyCode, int factor)
         {
             switch(keyCode)
             {
@@ -192,16 +242,16 @@ namespace SignalRPlay.Web.Models
                     SomeOneSetUsUpTheBomb();
                     break;
                 case "65":
-                    MoveBall("l");
+                    MoveBall("l", factor);
                     break;
                 case "87":
-                    MoveBall("u");
+                    MoveBall("u", factor);
                     break;
                 case "68":
-                    MoveBall("r");
+                    MoveBall("r", factor);
                     break;
                 case "83":
-                    MoveBall("d");
+                    MoveBall("d", factor);
                     break;
 
             }
@@ -270,56 +320,33 @@ namespace SignalRPlay.Web.Models
 
         public const int MaxActiveBombs = 3;
 
-        public void MoveBall(string dir)
+        public void MoveBall(string dir, int factor)
         {
+            const int BaseSpeed = 3;
+
             var ball = World.BallForUser(Context.ClientId);
 
-            var newPosX = ball.LocX;
-            var newPosY = ball.LocY;
-
-            var speed = 3;
+            if(factor > 0 )
+            {
+                ball.LastDir = dir;    
+            }
+            
 
             switch(dir)
             {
                 case "r":
-                    if (newPosX < World.Width) newPosX+=speed;
+                    ball.Xspeed = BaseSpeed * factor;
                     break;
                 case "l":
-                    if (newPosX > 0) newPosX-=speed;
+                    ball.Xspeed = -BaseSpeed * factor;
                     break;
                 case "u":
-                    if (newPosY > 0) newPosY -= speed;
+                    ball.Yspeed = -BaseSpeed * factor;
                     break;
                 case "d":
-                    if (newPosY < World.Height) newPosY+= speed;
+                    ball.Yspeed = BaseSpeed * factor;
                     break;
             }
-
-            if (Collides(newPosX, newPosY, ball.Size, true) == null)
-            {
-                ball.LocX = newPosX;
-                ball.LocY = newPosY;
-                ball.LastDir = dir;
-            }
-
-            EatsFood(ball)
-                .ToList()
-                .ForEach(f =>
-                    {
-                        World.RemoveFood(f.Key);
-                        Clients.foodEaten(f.Value.X, f.Value.Y);
-                        SendLogMessage(ball.Name + " ate some food!");
-                        
-                        if(ball.Size < Ball.MaxSize)
-                        {
-                            ball.Size += 5;    
-                        }
-
-                        ball.Score++;
-
-                        Clients.showUsers(World.AllUserData());
-                    });
-
         }
         
         private void SendLogMessage(string message)

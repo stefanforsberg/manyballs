@@ -54,98 +54,55 @@
 
     drawBall: function (ball, tailCounter) {
         var shade = shadeColor(ball.Value.Color, -70);
-        
+
         var eyeSize = ball.Value.Size / 10;
 
         var eyePosition = ball.Value.Size / 2;
         var eyeDistance = ball.Value.Size / 3;
 
+        var leftEye = { x: eyePosition, y: eyeDistance };
+        var rightEye = { x: eyePosition, y: -eyeDistance };
+
         var tail = [
             {
                 size: ball.Value.Size / 3,
-                x: ball.Value.LocX,
-                y: ball.Value.LocY,
-                tailx: 3 * Math.cos((tailCounter + 45) / 20),
-                taily: 3 * Math.sin((tailCounter + 45) / 20),
-                placementDelta: ball.Value.Size - (ball.Value.Size / 10)
+                x: -(ball.Value.Size - (ball.Value.Size / 10)),
+                y: 3 * Math.sin((tailCounter + 45) / 20)
             },
             {
                 size: ball.Value.Size / 6,
-                x: ball.Value.LocX,
-                y: ball.Value.LocY,
-                tailx: 3 * Math.cos((tailCounter) / 20),
-                taily: 3 * Math.sin((tailCounter) / 20),
-                placementDelta: (ball.Value.Size - (ball.Value.Size / 10) + (ball.Value.Size / 3))
+                x: -(ball.Value.Size - (ball.Value.Size / 10) + (ball.Value.Size / 3)),
+                y: 3 * Math.sin((tailCounter) / 20)
             }
         ];
 
-        var leftEye = { x: ball.Value.LocX, y: ball.Value.LocY };
-        var rightEye = { x: ball.Value.LocX, y: ball.Value.LocY };
+        context.save();
 
-        if (ball.Value.LastDir === "r") {
-            leftEye.x += eyePosition;
-            leftEye.y += eyeDistance;
+        context.translate(ball.Value.LocX, ball.Value.LocY);
 
-            rightEye.x += eyePosition;
-            rightEye.y -= eyeDistance;
-
-            tail[0].x -= tail[0].placementDelta;
-            tail[1].x -= tail[1].placementDelta;
-
-            tail[0].y = tail[0].y + tail[0].taily;
-            tail[1].y = tail[1].y + tail[1].taily;
-        }
         if (ball.Value.LastDir === "l") {
-            leftEye.x -= eyePosition;
-            leftEye.y += eyeDistance;
-
-            rightEye.x -= eyePosition;
-            rightEye.y -= eyeDistance;
-
-            tail[0].x += tail[0].placementDelta;
-            tail[1].x += tail[1].placementDelta;
-
-            tail[0].y = tail[0].y + tail[0].taily;
-            tail[1].y = tail[1].y + tail[1].taily;
+            context.rotate(Math.PI);
         }
         if (ball.Value.LastDir === "u") {
-            leftEye.x -= eyeDistance;
-            leftEye.y -= eyePosition;
-
-            rightEye.x += eyeDistance;
-            rightEye.y -= eyePosition;
-
-            tail[0].y += tail[0].placementDelta;
-            tail[1].y += tail[1].placementDelta;
-
-            tail[0].x = tail[0].x + tail[0].tailx;
-            tail[1].x = tail[1].x + tail[1].tailx;
+            context.rotate((Math.PI * 3)/ 2);
         }
         if (ball.Value.LastDir === "d") {
-            leftEye.x -= eyeDistance;
-            leftEye.y += eyePosition;
-
-            rightEye.x += eyeDistance;
-            rightEye.y += eyePosition;
-
-            tail[0].y -= tail[0].placementDelta;
-            tail[1].y -= tail[1].placementDelta;
-
-            tail[0].x = tail[0].x + tail[0].tailx;
-            tail[1].x = tail[1].x + tail[1].tailx;
+            context.rotate(Math.PI / 2);
         }
-
+        
         drawCircle(context, tail[0].x, tail[0].y, tail[0].size, shade);
         drawCircle(context, tail[1].x, tail[1].y, tail[1].size, shade);
 
-        drawCircle(context, ball.Value.LocX, ball.Value.LocY, ball.Value.Size, shade);
-        drawCircle(context, ball.Value.LocX, ball.Value.LocY, ball.Value.Size - 1, ball.Value.Color);
-        
+        drawCircle(context, 0, 0, ball.Value.Size, shade);
+        drawCircle(context, 0, 0, ball.Value.Size - 1, ball.Value.Color);
+
         drawCircle(context, leftEye.x, leftEye.y, eyeSize + 1, shade);
         drawCircle(context, rightEye.x, rightEye.y, eyeSize + 1, shade);
 
         drawCircle(context, leftEye.x, leftEye.y, eyeSize, "#ffffff");
         drawCircle(context, rightEye.x, rightEye.y, eyeSize, "#ffffff");
+
+        context.restore();
     },
 
     differ: function (a1, a2) {

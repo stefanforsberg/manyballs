@@ -1,6 +1,6 @@
 ﻿$(document).ready(function () {
 
-
+    var lastKey = 0;
     var drawingCanvas = document.getElementById('myDrawing');
     var context = drawingCanvas.getContext('2d');
 
@@ -38,10 +38,24 @@
 
     $("html").keydown(function (event) {
         var kc = event.which;
+        if (lastKey == kc) {
+            return;
+        }
+
+        lastKey = kc;
+
         if (kc == "32" || kc == "87" || kc == "65" || kc == "68" || kc == "83") {
-            gameServer.handleInput(kc);
+            gameServer.handleInput(kc, 1);
         }
     });
 
+    $("html").keyup(function (event) {
 
+        lastKey = 0;
+
+        var kc = event.which;
+        if (kc == "87" || kc == "65" || kc == "68" || kc == "83") {
+            gameServer.handleInput(kc, 0);
+        }
+    });
 });
