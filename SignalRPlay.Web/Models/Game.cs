@@ -42,7 +42,7 @@ namespace SignalRPlay.Web.Models
                 LocX = x, 
                 LocY = y,
                 LastDir = "r",
-                Size = 40,
+                Size = 20,
                 Score = 0,
                 Xspeed = 0,
                 Yspeed = 0
@@ -143,7 +143,7 @@ namespace SignalRPlay.Web.Models
             while (World.IsRunning)
             {
                 foodCounter++;
-                Thread.Sleep(100);
+                Thread.Sleep(50);
                 Clients.draw(World.AllUserData());
 
                 if (foodCounter <= 100) continue;
@@ -267,7 +267,6 @@ namespace SignalRPlay.Web.Models
                 return;
             }
 
-
             ball.ActiveBombs++;
 
             var x = ball.LocX - ball.Size / 2;
@@ -331,6 +330,7 @@ namespace SignalRPlay.Web.Models
                 ball.LastDir = dir;    
             }
             
+
 
             switch(dir)
             {

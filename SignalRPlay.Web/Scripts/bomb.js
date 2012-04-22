@@ -9,7 +9,7 @@
 }
 
 Bomb.prototype.add = function () {
-    $("#bomb-area").append("<canvas width=\"800\" height=\"500\" style=\"z-index: 50; top: 35px; left: 5px;\" id=\"bomb-" + this.id + "\"></canvas>");
+    $("#bomb-area").append("<canvas width=\"800\" height=\"500\" style=\"z-index: 50; top: 0px; left: 0px;\" id=\"bomb-" + this.id + "\"></canvas>");
     this.contextBomb = document.getElementById("bomb-" + this.id).getContext('2d');
     this.contextBomb.drawImage(this.img, this.x, this.y);
 
