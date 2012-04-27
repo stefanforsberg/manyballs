@@ -146,7 +146,7 @@ namespace SignalRPlay.Web.Models
                 Thread.Sleep(50);
                 Clients.draw(World.AllUserData());
 
-                if (foodCounter <= 100) continue;
+                if (foodCounter <= 200) continue;
 
                 var pos = GetNonCollidingPosition(15);
                 World.AddFood(pos);
@@ -164,16 +164,38 @@ namespace SignalRPlay.Web.Models
                     var newPosX = ball.LocX + ball.Xspeed;
                     var newPosY = ball.LocY + ball.Yspeed;
 
+                    //if (ball.Name.ToLower() == "hanna")
+                    //{
+                    //    SendLogMessage(string.Format("{0} - xspeed: {1} x: {2}, newx: {3}", ball.Name, ball.Xspeed, ball.LocX, newPosX));
+                    //}
+                    
+
                     if (newPosX >= World.Width) newPosX = World.Width;
                     if (newPosX <= 0) newPosX = 0;
                     if (newPosY <= 0) newPosY = 0;
                     if (newPosY >= World.Height) newPosY = World.Height;
 
-                    if (Collides(newPosX, newPosY, ball.Size, true) == null)
+                    var c = Collides(newPosX, newPosY, ball.Size, ball.Name);
+
+                    if(c != null)
+                    {
+                        SendLogMessage(ball.Name + " coll with " + c.Name);
+
+                    }
+
+                    if (Collides(newPosX, newPosY, ball.Size, ball.Name) == null)
                     {
                         ball.LocX = newPosX;
                         ball.LocY = newPosY;
+
+                        //if (ball.Name.ToLower() == "hanna")
+                        //{
+                        //    SendLogMessage(string.Format("{0} - xspeed: {1} x: {2}, newx: {3}", ball.Name, ball.Xspeed, ball.LocX, newPosX))
+                        //}
+                    
                     }
+
+                    
 
                     EatsFood(ball)
                         .ToList()
@@ -225,7 +247,7 @@ namespace SignalRPlay.Web.Models
             var x = random.Next(15, World.Width-50);
             var y = random.Next(15, World.Height - 50);
 
-            while (Collides(x, y, size, true) != null)
+            while (Collides(x, y, size, Context.ClientId) != null)
             {
                 x = random.Next(15, World.Width - 50);
                 y = random.Next(15, World.Height - 50);
@@ -290,9 +312,7 @@ namespace SignalRPlay.Web.Models
                     yspeed = -2;
                     break;
             }
-
-            Clients.newBomb(x, y, xspeed, yspeed, bombId);
-
+            
             Task.Factory.StartNew(() =>
             {
                 Thread.Sleep(5000);
@@ -321,7 +341,7 @@ namespace SignalRPlay.Web.Models
 
         public void MoveBall(string dir, int factor)
         {
-            const int BaseSpeed = 3;
+            const int BaseSpeed = 8;
 
             var ball = World.BallForUser(Context.ClientId);
 
@@ -354,11 +374,11 @@ namespace SignalRPlay.Web.Models
             Clients.updateLog(message);
         }
 
-        private Ball Collides(int newX, int newY, int currentRadius, bool ignoreSelf)
+        private Ball Collides(int newX, int newY, int currentRadius, string ballIdToIgnore)
         {
             foreach (var ball in World.AllUserData())
             {
-                if (ignoreSelf && ball.Key == Context.ClientId)
+                if (!string.IsNullOrEmpty(ballIdToIgnore) && ball.Key == ballIdToIgnore)
                 {
                     continue;
                 }

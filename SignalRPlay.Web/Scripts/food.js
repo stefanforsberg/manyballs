@@ -11,15 +11,18 @@
         var f = { x: x, y: y, a: Math.floor(Math.random() * 360), s: 1 + Math.floor(Math.random() * 4) };
 
         Food.foods.push(f);
-
-        if (Food.foods.length === 1) {
-            Food.drawFood();
-        }
     },
 
     drawFood: function () {
 
+        
+
+        
         foodContext.clearRect(0, 0, Game.width, Game.height);
+
+        if (Food.foods.length == 0) {
+            return;
+        }
 
         for (var i = 0; i < Food.foods.length; i++) {
             var f = Food.foods[i];
@@ -47,16 +50,14 @@
 
             foodContext.restore();
 
-            f.a+= f.s;
+            f.a += f.s;
         }
 
-        if (Food.foods.length > 0) {
-            window.setTimeout(function () { Food.drawFood(); }, 40);
-        }
+
 
     },
 
     foodEaten: function (x, y) {
-        Food.foods = _.filter(Food.foods, function (f) { return f.x !== x && f.y !== y; });
+        Food.foods = _.filter(Food.foods, function (f) { return (f.x != x && f.y != y); });
     }
 }

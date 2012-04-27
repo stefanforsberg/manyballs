@@ -30,17 +30,19 @@
             Game.balls[i].draw(new_user_data[i]);
         }
 
+        Food.drawFood();
+
         window.setTimeout(function () { Game.updateCanvas(); }, 40);
     },
-    
-    
 
     joined: function (data) {
 
         current_user_data = data;
         new_user_data = data;
 
-        window.setTimeout(function () { Game.updateCanvas(); }, 50);
+        Game.updateCanvas();
+
+        //        window.setTimeout(function () { Game.updateCanvas(); }, 40);
     },
 
     draw: function (data) {
